@@ -52,9 +52,9 @@ async def sel_login():
     except:
         await bot.send_message(chat, "tidak bisa login dengan cookies yang ada, mencoba mengambil cookies baru")
         try:
-            browser.find_element_by_id("username").send_keys(username);
-            browser.find_element_by_id("password").send_keys(password);
-            browser.find_element_by_class_name("btn-uin").click();
+            browser.find_element(By.ID, "username").send_keys(username);
+            browser.find_element(By.ID, "password").send_keys(password);
+            browser.find_element(By.CLASS_NAME,"btn-uin").click();
             browser.implicitly_wait(5)
             await bot.send_message(chat, f"cookies berhasil didapatkan !\n PHPSESSID : {cookiez}")
             pickle.dump(browser.get_cookies() , open("cookies.pkl","wb"))
@@ -65,9 +65,9 @@ async def sel_login():
 
 
 def take_ss(browser, full_id):
-    element = browser.find_element_by_id(full_id)
+    element = browser.find_element(By.ID, full_id)
     browser.execute_script("arguments[0].scrollIntoView(true);", element)
-    element2 = browser.find_element_by_id(full_id)
+    element2 = browser.find_element(By.ID, full_id)
     location = element2.location
     size = element2.size
     num_id = num_id = full_id.replace("dv-progres-sts-","") 
@@ -98,7 +98,7 @@ def cek_id():
     WebDriverWait(browser, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
         )
-    ids = browser.find_elements_by_xpath('//*[@id]')
+    ids = browser.find_element(By.XPATH,'//*[@id]')
     for ii in ids:
         full_id = ii.get_attribute('id')
         if full_id.startswith("dv-progres-sts"):
@@ -159,8 +159,8 @@ def auto_hadir(num_id):
         z = tree.getpath(e)
     button_xpath = z.replace("/div[1]","/div[3]/div[2]/div[1]/form/input[2]")
     try:
-       browser.find_element_by_id(combox).send_keys("hadir");
-       browser.find_element_by_xpath(button_xpath).click() 
+       browser.find_element(By.ID, combox).send_keys("hadir");
+       browser.find_element(By.XPATH,button_xpath).click() 
     except Exception as e:
         print(e)
         pass
@@ -216,7 +216,7 @@ async def diskusi(full_id):
     print(capt)
     # download file yang ada pada post
     try:
-        file = browser.find_element_by_xpath(f'//*[@id="{full_id}"]/div[3]/p/span/a')
+        file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p/span/a')
         file_name = file.text
         print(file_name)
     except:
@@ -264,7 +264,7 @@ waktu mulai  {text_b[(itext_b-2)]}
     # download file yang ada pada post
 
     try:
-        file = browser.find_element_by_xpath(f'//*[@id="{full_id}"]/div[3]/p/span/a')
+        file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p/span/a')
         file_name = file.text
         try:
             filez = await bot.upload_file(f'down/{file_name}')
@@ -332,7 +332,7 @@ async def diskusibot(full_id, pic_name):
     await bot.send_file(chat, pic_name, caption=capt)
     # download file yang ada pada post
     try:
-        file = browser.find_element_by_xpath(f'//*[@id="{full_id}"]/div[3]/p/span/a')
+        file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p/span/a')
         file_name = file.text
         print(file_name)
     except:
