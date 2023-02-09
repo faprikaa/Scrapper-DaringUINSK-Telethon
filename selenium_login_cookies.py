@@ -14,13 +14,18 @@ from telethon import *
 from telethon import sync
 import os
 from lxml import html
+from configparser import ConfigParser
 
-api_id = 
-api_hash = ""
-bot_token = ""
-chat = -
-username = ""
-password = ""
+# Read config.ini
+config = ConfigParser()
+config.read('config.ini')
+
+api_id = config.getint('Telegram_bot', 'api_id')
+api_hash = config.get('Telegram_bot', 'api_hash')
+bot_token = config.get('Telegram_bot', 'bot_token')
+chat = config.getint('Telegram_bot', 'chat')
+username = config.get('Login', 'username')
+password = config.get('Login', 'password')
 
 bot = TelegramClient('anon', api_id, api_hash).start(bot_token=bot_token)
 
