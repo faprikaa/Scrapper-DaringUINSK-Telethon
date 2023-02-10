@@ -2,10 +2,11 @@ from lib2to3.pgen2 import driver
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
 import pickle
-import json
+import sys
 import requests
 import time
 from bs4 import BeautifulSoup
@@ -36,37 +37,48 @@ printed_id = []
 options = webdriver.ChromeOptions()
 prefs={"download.default_directory":f"{os.getcwd()}\down"};
 options.add_experimental_option("prefs",prefs);
-browser = webdriver.Chrome(executable_path= "driver/chromedriver.exe",options=options)
+ser = Service("driver/chromedriver.exe")
+browser = webdriver.Chrome(service=ser ,options=options)
 
 async def sel_login():
     browser.maximize_window()
     browser.implicitly_wait(5)
     browser.get("https://daring.uin-suka.ac.id");
     browser.delete_cookie("PHPSESSID")
-    cookies = pickle.load(open("cookies.pkl", "rb"))
-    for cookie in cookies:
+    old_cookies = pickle.load(open("cookies.pkl", "rb"))
+    for cookie in old_cookies:
         browser.add_cookie(cookie)
-    browser.get("https://daring.uin-suka.ac.id/dashboard");
-    cookiez = cookies[2].get('value')
+    browser.get("https://daring.uin-suka.ac.id/dashboard")
+    for i in range(len(old_cookies)):
+        if old_cookies[i]["name"] == "PHPSESSID":
+            cookiez = old_cookies[i]["value"]
     time.sleep(5)
+    global ps
     ps = browser.page_source
     try :
         WebDriverWait(browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
             )
+        nama = browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
+        await bot.send_message(chat, f"Berhasil Login dengan cookies yang sudah ada !\n `PHPSESSID` : `{cookiez}`\n dengan nama : **{nama.text}**")
     except:
-        await bot.send_message(chat, "tidak bisa login dengan cookies yang ada, mencoba mengambil cookies baru")
+        await bot.send_message(chat, "Tidak bisa login dengan cookies yang ada, mencoba mengambil cookies baru")
         try:
-            browser.find_element(By.ID, "username").send_keys(username);
-            browser.find_element(By.ID, "password").send_keys(password);
-            browser.find_element(By.CLASS_NAME,"btn-uin").click();
+            browser.find_element(By.ID, "username").send_keys(username)
+            browser.find_element(By.ID, "password").send_keys(password)
+            browser.find_element(By.CLASS_NAME,"btn-uin").click()
             browser.implicitly_wait(5)
-            await bot.send_message(chat, f"cookies berhasil didapatkan !\n PHPSESSID : {cookiez}")
-            pickle.dump(browser.get_cookies() , open("cookies.pkl","wb"))
+            new_cookies = browser.get_cookies()
+            for i in range(len(new_cookies)):
+                if new_cookies[i]["name"] == "PHPSESSID":
+                    cookiez = new_cookies[i]["value"]
+            nama = browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
+            await bot.send_message(chat, f"cookies berhasil didapatkan !\n `PHPSESSID` : `{cookiez}` \n dengan nama : **{nama.text}**")
+            pickle.dump(new_cookies, open("cookies.pkl","wb"))
         except Exception as e :
             print(e)
-    finally:
-        await bot.send_message(chat, "Berhasil login !")
+
+    
 
 
 def take_ss(browser, full_id):
@@ -93,23 +105,14 @@ def take_ss(browser, full_id):
     im.save(name)
     return(name)
 
-# page_source = browser.page_source
-# cookiez = {'PHPSESSID': cookie.get('value')}
-# response = s.get('https://daring.uin-suka.ac.id/', cookies=cookiez, headers=headers)
-# soup = BeautifulSoup(page_source, 'lxml')
-# tugas(page_source,cookiez,"dv-progres-sts-194746")
-
 def cek_id():
     WebDriverWait(browser, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
         )
-    ids = browser.find_element(By.XPATH,'//*[@id]')
-    for ii in ids:
-        full_id = ii.get_attribute('id')
-        if full_id.startswith("dv-progres-sts"):
-            num_id = full_id.replace("dv-progres-sts-","") 
-            all_id.append(full_id)
-
+    ids = browser.find_elements(By.XPATH,'//*[starts-with(@id, "dv-progres-sts")]')
+    for ii in range(len(ids)):
+        full_id = ids[ii].get_attribute('id')
+        all_id.append(full_id)
 
 def cek_jenis_all():
     for full_id in all_id:
@@ -138,20 +141,19 @@ def cek_jenis(full_id):
     )
     bs_id = full_id.replace("dv-progres-sts-","dv-jurnalperkuliahan-")
     main = soup.find("div", {"id": str(full_id)})
-    print(main.text)
-    #main = soup.find_all('div')
-    #print(bs_id)
     try:
         text_main = main.get_text(" | ", strip = True ).split(" | ")
     except:
         print("using sleep") 
-        print(main)
+        browser.get((browser.current_url))
         time.sleep(10)
         text_main = main.get_text(" | ", strip = True ).split(" | ")
     jenis = text_main[0]
     if jenis == "Forum":
         return jenis
-    else :
+    elif jenis == "Tugas":
+        return jenis
+    else:
         return (text_main[1])
 
 def auto_hadir(num_id):
@@ -184,67 +186,6 @@ def scrape(ps):
     # except:
     #     pass
 
-def main():
-    global loop
-    loop = asyncio.get_event_loop() # untuk menjalankan async
-    loop.run_until_complete(sel_login()) #login
-    scrape(browser.page_source) #persiapan beautiful soup
-    cek_id() #mengambil data yang ada pada page
-    cek_jenis_all() #menganalisis tiap data
-
-async def diskusi(full_id):
-    main = soup.find("div", {"id": full_id})
-    text_a = main.get_text(" | ", strip = True ).split(" | ")
-    sub = main.find("div", {"class": "post_content"})
-    text_b= sub.get_text(" | ", strip = True ).split(" | ")
-
-    ## untuk mengantisipasi jika ada lebih dari 1 line pada deskripsi
-    itext_b = len(text_b)
-    Node = itext_b - 11
-    desc =[]
-    for i in text_b[6:Node] : 
-        desc.append(i)
-    desc2 = "\n".join(desc)
-    ##
-
-    capt = f"""**jenis : {text_a[0]}
-    jurusan : {text_a[3]}
-    matkul :  {text_a[4]}
-    dosen : {text_a[5]}
-    Indikator Kemampuan : {text_b[1]}
-    Materi Perkuliahan : {text_b[3]}
-    Bentuk Pembelajaran : {text_b[5]}
-    Deskripsi : {desc2}
-    waktu mulai  {text_b[(itext_b-7)]}
-    waktu selesai  {text_b[(itext_b-5)]}
-    **"""
-    print(capt)
-    # download file yang ada pada post
-    try:
-        file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p/span/a')
-        file_name = file.text
-        print(file_name)
-    except:
-        print("No file attached")
-
-async def tugas(full_id):
-    main = soup.find("div", {"id": full_id})
-    text_a = main.get_text(" | ", strip = True ).split(" | ")
-    print("jenis : " + text_a[0] + text_a[1])
-    print("jurusan : " + text_a[2])
-    print("matkul : " + text_a[3])
-    print("dosen : " + text_a[4])
-
-    sub = main.find("div", {"class": "post_content"})
-    text_b= sub.get_text(" | ", strip = True ).split(" | ")
-    itext_b = len(text_b)
-    print("deskripsi : ")
-    Node = itext_b - 8
-    for i in text_b[:Node]:
-        print(i)
-    print("waktu mulai " + text_b[(itext_b-4)])
-    print("waktu mulai " + text_b[(itext_b-2)])
-
 async def tugasbot(full_id, pic_name):
     # pilih id yang mau dipakai
     main = soup.find("div", {"id": full_id})
@@ -257,17 +198,17 @@ async def tugasbot(full_id, pic_name):
     for i in text_b[:Node] : 
         desc.append(i)
     desc2 = "\n".join(desc)
-    capt = f"""**jenis : {text_a[0]}
-jurusan : {text_a[2]}
-matkul :  {text_a[3]}
-dosen : {text_a[4]}
-deskripsi : {desc2}
-waktu mulai  {text_b[(itext_b-4)]}
-waktu mulai  {text_b[(itext_b-2)]}
-**"""
+    capt = f"""**jenis : **{text_a[0]}
+**Jurusan :**{text_a[2]}
+**Matkul :**{text_a[3]}
+**Dosen :**{text_a[4]}
+**Deskripsi :**{desc2}
+**Waktu mulai**{text_b[(itext_b-4)]}
+**Waktu mulai**{text_b[(itext_b-2)]}
+"""
     await bot.send_file(chat, pic_name, caption=capt)
+    
     # download file yang ada pada post
-
     try:
         file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p/span/a')
         file_name = file.text
@@ -275,54 +216,37 @@ waktu mulai  {text_b[(itext_b-2)]}
             filez = await bot.upload_file(f'down/{file_name}')
             await bot.send_file(chat, filez)
         except:
-            time.sleep(5)
             file.click()
             time.sleep(5)
             filez = await bot.upload_file(f'down/{file_name}')
             await bot.send_file(chat, filez)
     except:
-        await bot.send_message(chat, "No File Attached")
-
+        await bot.send_message(chat, "No File Attached")    
     printed_id.append(full_id)
     pickle.dump(printed_id, open("printed_id.p", "wb"))
 
-@bot.on(events.NewMessage(pattern='(?i).*hi'))
-async def handler(event):
-    await bot.send_message(chat, "test")
-    full_id = "dv-progres-sts-194746"
-    main = soup.find("div", {"id": full_id})
-    text_a = main.get_text(" | ", strip = True ).split(" | ")
-    sub = main.find("div", {"class": "post_content"})
-    text_b= sub.get_text(" | ", strip = True ).split(" | ")
-    itext_b = len(text_b)
-    Node = itext_b - 8
-    desc =[]
-    for i in text_b[:Node] : 
-        desc.append(i)
-    desc2 = "\n".join(desc)
-    await bot.send_message(chat, f"""jenis : {text_a[0]},
-jurusan : {text_a[2]},
-matkul :  {text_a[3]},
-dosen : {text_a[4]},
-deskripsi : {desc2},
-waktu mulai  {text_b[(itext_b-4)]},
-waktu mulai {text_b[(itext_b-2)]}""")
-
 async def diskusibot(full_id, pic_name):
+    # ambil text
     main = soup.find("div", {"id": full_id})
     text_a = main.get_text(" | ", strip = True ).split(" | ")
     sub = main.find("div", {"class": "post_content"})
     text_b= sub.get_text(" | ", strip = True ).split(" | ")
-
-    ## untuk mengantisipasi jika ada lebih dari 1 line pada deskripsi
+    total_file = len(browser.find_elements(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p'))
     itext_b = len(text_b)
-    Node = itext_b - 11
+
+    if total_file > 0 :
+        total_file2 = total_file * 2 + 1
+        Node = itext_b - 11 - total_file2
+    else:
+        Node = itext_b - 11
+    
+    ## untuk mengantisipasi jika ada lebih dari 1 line pada deskripsi
     desc =[]
     for i in text_b[6:Node] : 
         desc.append(i)
     desc2 = "\n".join(desc)
-    ##
-
+    
+    ## bot caption maker
     capt = f"""**Jenis :** {text_a[1]}
 **Jurusan :** {text_a[3]}
 **Matkul :  **{text_a[4]}
@@ -336,11 +260,32 @@ async def diskusibot(full_id, pic_name):
 """
     await bot.send_file(chat, pic_name, caption=capt)
     # download file yang ada pada post
-    try:
-        file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p/span/a')
-        file_name = file.text
-        print(file_name)
-    except:
-        print("No file attached")
+    total_file = browser.find_elements(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p')
+    if len(total_file) == 1:
+        try:
+            file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p/span/a')
+            file_name = file.text
+            print(file_name)
+        except:
+            raise Exception
+    else :
+        for i in range(1, len(total_file)+1 ):
+            file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p[{i}]/span/a')
+            link = file.get_attribute("href")
+            clickable = browser.find_element(By.XPATH, f"//a[@href='{link}']")
+            file_name = file.text
+            clickable.click()
+            time.sleep(2)
+            file_upload = await bot.upload_file(f'down/{file_name}')
+            await bot.send_file(chat, file_upload)
+
+def main():
+    global loop
+    loop = asyncio.new_event_loop() # untuk menjalankan async
+    loop.run_until_complete(sel_login()) #login
+    scrape(browser.page_source) #persiapan beautiful soup
+    cek_id() #mengambil data yang ada pada page
+    cek_jenis_all() #menganalisis tiap data
+    bot.run_until_disconnected
 
 main()
