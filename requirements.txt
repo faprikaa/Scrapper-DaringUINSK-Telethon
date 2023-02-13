@@ -1,12 +1,11 @@
 selenium==4.8.0
-lib2to3.pgen2
-PIL
-pickle
-sys
+Pillow
+pickle5
+os-sys
 requests
-time
+python-time
 bs4
 telethon
-os
 lxml
 configparser
+nest-asyncio
