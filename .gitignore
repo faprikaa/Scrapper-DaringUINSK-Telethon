@@ -1,0 +1,7 @@
+#GitIgnore
+*.pkl
+*.ini
+*.json
+*.p
+/down/*
+/pic/*
