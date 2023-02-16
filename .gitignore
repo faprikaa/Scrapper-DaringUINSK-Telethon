@@ -1,6 +1,6 @@
 #GitIgnore
 *.pkl
-config.ini
+*.ini
 *.json
 *.p
 /down/*
