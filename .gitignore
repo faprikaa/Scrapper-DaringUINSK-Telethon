@@ -1,7 +1,11 @@
 #GitIgnore
-.pkl
 .ini
 .json
 .p
 /down/
 /pic/
+cookies.pkl
+config.ini
+data.json
+anon.session
+/__pycache__/
