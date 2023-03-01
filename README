@@ -1,0 +1,35 @@
+Add a file Name config.ini in the same folder and then copy paste and edit this line:
+  [Telegram_bot]
+  api_id = 9xxxx7 
+  # example : 91231
+  api_hash = dxxxxxxxxxxxxxxxxxxxb 
+  # example : d123obosboa82owd82sda950b
+  bot_token = 5xxxxxxxx9:Axxxxxxxxxxxxxxxxxxxxxx4 
+  # example : 56929292929:ASkqwnsidjjisd291ASDw5Z4
+  chat = -100xxxxxxxx 
+  # example : -100606660660 ## use -100 !!!!
+
+  [Login] 
+  username = 2xxxxxxxxx 
+  # example : 2169696969
+  password = xxxxxxxxxx 
+  # example : password595595959
+
+  [Driver]
+  driver_path = /xxx/xxx/xxx   
+  # example  : /usr/bin/chromedriver
+  download_path = /xxx/xxxx/xxx 
+  # example : ./down/
+  json_filename = xxxxxx.json 
+  # example : data.json 
+  OS = xxxxx 
+  # choose : Linux / Windows
+
+  [jadwal]
+
+  #this all example
+  Senin = 10:50 - 12:20, 12:30 - 14:15, 14:20 - 16 20, 16:25 - 18:10
+  Selasa = 12:50 - 13:30
+  Rabu = 10:50 - 12:20
+  Kamis = 07:00 - 08:55, 10:50 - 12:20
+  Jumat = 07:00 - 08:55, 10:50 - 12:20, 16:25 - 18:10
