@@ -21,12 +21,17 @@ def jsonf_read():
     return data
 
 def cek_jenis(browser, full_id):
-    soup = BeautifulSoup(browser.page_source, 'html.parser')
     WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
     )
-    bs_id = full_id.replace("dv-progres-sts-","dv-jurnalperkuliahan-")
-    main = soup.find("div", {"id": str(full_id)})
+    soup = BeautifulSoup(browser.page_source, 'html.parser')
+    
+    try:
+        main = soup.find("div", {"id": str(full_id)})
+    except:
+        browser.get("https://daring.uin-suka.ac.id/dashboard")
+        main = soup.find("div", {"id": str(full_id)})
+
     try:
         text_main = main.get_text(" | ", strip = True ).split(" | ")
     except:
@@ -44,23 +49,35 @@ def cek_jenis(browser, full_id):
     else:
         return (text_main[1])
 
-async def cek_jenis_all(browser, all_id, data):
-    data = data
+async def cek_jenis_all(browser, all_id, data=0):
+    if data==0:
+        data = jsonf_read()
+    
+    browser.get("https://daring.uin-suka.ac.id/dashboard")
+
+    try:
+        browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
+    except:
+        await login()
+
+    WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
+    )
+
+    total_tugas_baru = 0 
     for full_id in all_id:
         jenis = cek_jenis(browser, full_id)
         try:
-            msg = "Ada update tugas "
             if full_id not in data:
                 if jenis=="Tugas":
                     data = await tugasbot(browser, full_id, data)
+                    total_tugas_baru = total_tugas_baru + 1
                 elif jenis=="Diskusi":
                     data = await diskusibot(browser, full_id, data)
+                    total_tugas_baru = total_tugas_baru + 1
                 elif jenis=="Meeting":
                     data = await meetingbot(browser, full_id, data)
-                    '''
-                elif jenis=="Forum":
-                    data = await forumbot(browser, full_id, data)
-                    '''
+                    total_tugas_baru = total_tugas_baru + 1
                 else:
                     await send_msg(f"Unknown post type, {jenis}")
             elif full_id in data:
@@ -68,31 +85,41 @@ async def cek_jenis_all(browser, all_id, data):
                 if data[full_id]["Status"] != status:
                     if jenis=="Tugas":
                         data = await tugasbot(browser, full_id, data)
+                        total_tugas_baru = total_tugas_baru + 1
                     elif jenis=="Diskusi":
                         data = await diskusibot(browser, full_id, data)
+                        total_tugas_baru = total_tugas_baru + 1
                     elif jenis=="Meeting":
                         data = await meetingbot(browser, full_id, data)
-                    '''
-                    elif jenis=="Forum":
-                        data = await forumbot(browser, full_id, data)
-                    '''
+                        total_tugas_baru = total_tugas_baru + 1
                     else:
                         await send_msg(f"Unknown post type, {jenis}")
-                else:
-                    msg = "Tidak ada update tugas"
-                    pass
-            else:
-                msg = "Tidak ada update tugas"
         except Exception as e:
            await send_msg(f"An error occured, {traceback.format_exc()}")
 
     #json write
     with open(jsonfile, "w") as file:
         json.dump(data, file,  indent=4, sort_keys=True)
-    
-    return msg
+
+    # returner
+    if total_tugas_baru > 0:
+        hasil = f"ada {total_tugas_baru} tugas baru"
+        return hasil
+    elif total_tugas_baru == 0:
+        hasil = "tidak ada postingan baru"
+        return hasil
 
 async def force_cek_jenis_all(browser, all_id):
+    browser.get("https://daring.uin-suka.ac.id/dashboard")
+
+    try:
+        browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
+    except:
+        await login()
+
+    WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
+    )
     for full_id in all_id:
         jenis = cek_jenis(browser, full_id)
         data= {}
@@ -103,10 +130,6 @@ async def force_cek_jenis_all(browser, all_id):
                 data = await diskusibot(browser, full_id, data)
             elif jenis=="Meeting":
                 data = await meetingbot(browser, full_id, data)
-            '''
-            elif jenis=="Forum":
-                data = await forumbot(browser, full_id, data)
-            '''
             else:
                 await send_msg(f"Unknown post type, {jenis}")
         except Exception as e:
