@@ -15,8 +15,11 @@ bot = TelegramClient('anon', api_id, api_hash).start(bot_token=bot_token)
 async def send_msg(msg):
     await bot.send_message(chat, msg)
 
-async def send_pic(pic_name, capt):
-    await bot.send_file(chat, pic_name, caption=capt)
+async def send_pic(pic_name, capt=0):
+    if capt==0:
+        await bot.send_file(chat, pic_name)
+    else:
+        await bot.send_file(chat, pic_name, caption=capt)
 
 async def send_file(file_name):
     file_name_dir = "down/" + file_name
