@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from data_handler import *
 from bot_handler import *
 from file_handler import *
-
+from data_parser import *
 
 async def tugasbot(browser, full_id, data):
     # pilih id yang mau dipakai
@@ -77,6 +77,7 @@ async def diskusibot(browser, full_id, data):
     main = soup.find("div", {"id": full_id})
     status = main.attrs["class"][2]
     text_a = main.get_text(" | ", strip = True ).split(" | ")
+    dataparser = diskusiparser(text_a)
     sub = main.find("div", {"class": "post_content"})
     text_b= sub.get_text(" | ", strip = True ).split(" | ")
     total_file = len(browser.find_elements(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p'))
