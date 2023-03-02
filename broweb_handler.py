@@ -17,24 +17,29 @@ config.read('config.ini')
 username = config.get('Login', 'username')
 password = config.get('Login', 'password')
 driver_path = config.get('Driver', 'driver_path')
-down_path = config.get('Driver', 'download_path')
 jsonfile = config.get('Driver', 'json_filename')
 OS_type = config.get('Driver', 'OS')
 
+thisfolder = os.getcwd()
+down_path = thisfolder + r"//down"
+
 def init_browser():
     options = webdriver.ChromeOptions()
-    prefs={"download.default_directory": f"{os.getcwd()}\{down_path}"}
+    prefs={"download.default_directory": down_path, "download.directory_upgrade": True}
     options.add_experimental_option("prefs",prefs )
     options.add_experimental_option("detach", True)
     if OS_type == "Linux":
         options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
-    ser = Service("driver/chromedriver.exe")
+        ser = Service("/usr/bin/chromedriver")
+    else:
+        ser = Service("driver/chromedriver.exe")
+    global browser
     browser = webdriver.Chrome(service=ser ,options=options)
     browser.maximize_window()
     return browser
 
-async def login(browser):
+async def login():
     browser.get("https://daring.uin-suka.ac.id")
     try :
         browser.delete_cookie("PHPSESSID")
@@ -67,6 +72,7 @@ async def login(browser):
         except :
             await send_msg(f"An error occured, {traceback.format_exc()}")
 
+    browser.set_window_size(1280, 720)
     return browser
 
 def cek_id(browser):
