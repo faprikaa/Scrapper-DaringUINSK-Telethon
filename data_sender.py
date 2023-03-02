@@ -199,7 +199,6 @@ async def meetingbot(browser, full_id, data):
     data[f"{full_id}"] = {"Jenis" : text_a[1], "Jurusan" : text_a[3], "Matkul" : text_a[4], "Dosen" : text_a[5], "Indikator Kemampuan" : text_b[1], "Materi Perkuliahan" : text_b[3], "Bentuk Pembelajaran" : text_b[5], "lLink" : text_b[6], "Deskripsi" : desc2, "Waktu mulai" : text_b[(itext_b-11)], "Waktu selesai" : text_b[(itext_b-13)], "Status" : status, "Picname" : img_name}
     return data
 
-'''
 async def forumbot(browser, full_id, data):
     # ambil text
     soup = BeautifulSoup(browser.page_source, 'html.parser')
@@ -257,4 +256,4 @@ async def forumbot(browser, full_id, data):
     data[f"{full_id}"] = {"Jenis": text_a[0], "Jurusan": text_a[2], "Matkul": text_a[3],
                           "Nama Pengirim": text_a[1], "Deskripsi": desc2, "Picname": img_name}
     return data
-'''
+
