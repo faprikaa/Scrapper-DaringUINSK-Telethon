@@ -205,6 +205,7 @@ async def forumbot(browser, full_id, data):
     soup = BeautifulSoup(browser.page_source, 'html.parser')
     main = soup.find("div", {"id": full_id})
     text_a = main.get_text(" | ", strip=True).split(" | ")
+    dataparser = forumparser(text_a)
     sub = main.find("div", {"class": "post_content"})
     text_b = sub.get_text(" | ", strip=True).split(" | ")
     total_file = len(browser.find_elements(
@@ -217,18 +218,12 @@ async def forumbot(browser, full_id, data):
     else:
         Node = itext_b - 13
 
-     # untuk mengantisipasi jika ada lebih dari 1 line pada deskripsi
-    desc = []
-    for i in text_b[7:Node]:
-        desc.append(i)
-    desc2 = "\n".join(desc)
-
     # print text
-    capt = f"""**Jenis :** {text_a[0]}
-**Jurusan :** {text_a[2]}
-**Matkul :  **{text_a[3]}
-**Nama Pengirim : **{text_a[1]}
-**Deskripsi : **{desc2}
+    capt = f"""**Jenis :** {dataparser[0]}
+**Jurusan :** {dataparser[1]}
+**Matkul :  **{dataparser[2]}
+**Nama Pengirim : **{dataparser[3]}
+**Deskripsi : **{dataparser[4]}
 **Total File : **{total_file}
 """
     # take ss of element
@@ -254,7 +249,6 @@ async def forumbot(browser, full_id, data):
             await send_msg(f"An error occured, {traceback.format_exc()}")
 
     # json handler
-    data[f"{full_id}"] = {"Jenis": text_a[0], "Jurusan": text_a[2], "Matkul": text_a[3],
-                          "Nama Pengirim": text_a[1], "Deskripsi": desc2, "Picname": img_name}
+    data[f"{full_id}"] = {"Jenis": dataparser[0], "Jurusan": dataparser[1], "Matkul": dataparser[2],
+                          "Nama Pengirim": dataparser[3], "Deskripsi": dataparser[4], "Picname": img_name}
     return data
-
