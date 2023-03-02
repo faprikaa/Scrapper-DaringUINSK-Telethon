@@ -78,6 +78,9 @@ async def cek_jenis_all(browser, all_id, data=0):
                 elif jenis=="Meeting":
                     data = await meetingbot(browser, full_id, data)
                     total_tugas_baru = total_tugas_baru + 1
+                elif jenis == "Forum":
+                    data = await forumbot(browser, full_id, data)
+                    total_tugas_baru = total_tugas_baru + 1
                 else:
                     await send_msg(f"Unknown post type, {jenis}")
             elif full_id in data:
@@ -91,6 +94,9 @@ async def cek_jenis_all(browser, all_id, data=0):
                         total_tugas_baru = total_tugas_baru + 1
                     elif jenis=="Meeting":
                         data = await meetingbot(browser, full_id, data)
+                        total_tugas_baru = total_tugas_baru + 1
+                    elif jenis == "Forum":
+                        data = await forumbot(browser, full_id, data)
                         total_tugas_baru = total_tugas_baru + 1
                     else:
                         await send_msg(f"Unknown post type, {jenis}")
@@ -130,6 +136,8 @@ async def force_cek_jenis_all(browser, all_id):
                 data = await diskusibot(browser, full_id, data)
             elif jenis=="Meeting":
                 data = await meetingbot(browser, full_id, data)
+            elif jenis == "Forum":
+                data = await forumbot(browser, full_id, data)
             else:
                 await send_msg(f"Unknown post type, {jenis}")
         except Exception as e:
