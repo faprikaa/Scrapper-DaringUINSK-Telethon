@@ -77,7 +77,6 @@ async def diskusibot(browser, full_id, data):
     main = soup.find("div", {"id": full_id})
     status = main.attrs["class"][2]
     text_a = main.get_text(" | ", strip = True ).split(" | ")
-    dataparser = diskusiparser(text_a)
     sub = main.find("div", {"class": "post_content"})
     text_b= sub.get_text(" | ", strip = True ).split(" | ")
     total_file = len(browser.find_elements(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p'))
@@ -94,7 +93,7 @@ async def diskusibot(browser, full_id, data):
     for i in text_b[6:Node] : 
         desc.append(i)
     desc2 = "\n".join(desc)
-    
+
     ## bot caption maker
     capt = f"""**Jenis :** {text_a[1]}
 **Jurusan :** {text_a[3]}
@@ -158,7 +157,7 @@ async def meetingbot(browser, full_id, data):
     for i in text_b[7:Node] : 
         desc.append(i)
     desc2 = "\n".join(desc)
-    
+
     # print text
     capt =f"""**Jenis :** {text_a[1]}
 **Jurusan :** {text_a[3]}
@@ -206,11 +205,15 @@ async def forumbot(browser, full_id, data):
     main = soup.find("div", {"id": full_id})
     text_a = main.get_text(" | ", strip=True).split(" | ")
     dataparser = forumparser(text_a)
+
     sub = main.find("div", {"class": "post_content"})
     text_b = sub.get_text(" | ", strip=True).split(" | ")
+
     total_file = len(browser.find_elements(
         By.XPATH, f'//*[@id="{full_id}"]/div[3]/p'))
     itext_b = len(text_b)
+
+    status = "no-status-found"
 
     if total_file > 0:
         total_file2 = total_file * 2 + 2
@@ -225,6 +228,7 @@ async def forumbot(browser, full_id, data):
 **Nama Pengirim : **{dataparser[3]}
 **Deskripsi : **{dataparser[4]}
 **Total File : **{total_file}
+**Status : **{status}
 """
     # take ss of element
     img_name = "pic/" + full_id + ".png"
@@ -250,5 +254,5 @@ async def forumbot(browser, full_id, data):
 
     # json handler
     data[f"{full_id}"] = {"Jenis": dataparser[0], "Jurusan": dataparser[1], "Matkul": dataparser[2],
-                          "Nama Pengirim": dataparser[3], "Deskripsi": dataparser[4], "Picname": img_name}
+                          "Nama Pengirim": dataparser[3], "Deskripsi": dataparser[4],"Status" : "no-status-found", "Picname": img_name}
     return data
