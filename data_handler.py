@@ -78,10 +78,10 @@ async def cek_jenis_all(browser, all_id, data=0):
                 elif jenis=="Meeting":
                     data = await meetingbot(browser, full_id, data)
                     total_tugas_baru = total_tugas_baru + 1
-                elif jenis == "Forum":
+                elif jenis=="Forum":
                     data = await forumbot(browser, full_id, data)
                     total_tugas_baru = total_tugas_baru + 1
-                else:
+                else:   
                     await send_msg(f"Unknown post type, {jenis}")
             elif full_id in data:
                 status = status_checker(browser, full_id)
@@ -95,7 +95,7 @@ async def cek_jenis_all(browser, all_id, data=0):
                     elif jenis=="Meeting":
                         data = await meetingbot(browser, full_id, data)
                         total_tugas_baru = total_tugas_baru + 1
-                    elif jenis == "Forum":
+                    elif jenis=="Forum":
                         data = await forumbot(browser, full_id, data)
                         total_tugas_baru = total_tugas_baru + 1
                     else:
@@ -116,8 +116,6 @@ async def cek_jenis_all(browser, all_id, data=0):
         return hasil
 
 async def force_cek_jenis_all(browser, all_id):
-    browser.get("https://daring.uin-suka.ac.id/dashboard")
-
     try:
         browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
     except:
@@ -136,11 +134,10 @@ async def force_cek_jenis_all(browser, all_id):
                 data = await diskusibot(browser, full_id, data)
             elif jenis=="Meeting":
                 data = await meetingbot(browser, full_id, data)
-            elif jenis == "Forum":
+            elif jenis=="Forum":
                 data = await forumbot(browser, full_id, data)
             else:
                 await send_msg(f"Unknown post type, {jenis}")
         except Exception as e:
             await send_msg(f"An error occured, {traceback.format_exc()}")
     pass
-
