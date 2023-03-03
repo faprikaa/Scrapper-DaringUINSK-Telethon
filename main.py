@@ -15,15 +15,18 @@ async def main():
     data = jsonf_read()
     # msg = await cek_jenis_all(browser, arr_id, data)
     # await send_msg(msg)
-    init_schedul(browser, data)
+    await init_schedul(browser, data)
     await looping()
     await bot.run_until_disconnected()
 
 async def looping():
+    total_cek = 1   
     while True:
         try:
             await schedul()
             await asyncio.sleep(600)
+            total_cek += 1
+            await send_total(total_cek)
         except :
             await send_msg(f"An error occured at looping, {traceback.format_exc()}")
 
