@@ -97,9 +97,19 @@ async def handler(event):
 `/fcek` = Menegecek web apa ada postingan baru TANPA dengan menggunakan data.json
 `/ss` = Mengambil screenschot pada browser
 `/scroll` [pixel] = Menscroll browser 
-`/sscroll` [pixel]= Menscroll browser lalu mengambil screenshot
+`/s2scroll` [pixel]= Menscroll browser lalu mengambil screenshot
 
 **# Usage ** 
-positif [pixel] untuk ke atas (/scroll 100), negatif [pixel] untuk ke bawah (/scroll -100))
+positif [pixel] untuk ke atas (/scroll 100)
+negatif [pixel] untuk ke bawah (/scroll -100))
 """ 
     await send_msg(msg)
+
+y = 0
+def send_total(x):
+    global y
+    y = x
+
+@bot.on(events.NewMessage(pattern='(?i)/*send'))
+async def handler(event):
+    await send_msg(f"Total melakukan loop adalah {y}")
