@@ -25,7 +25,7 @@ down_path = thisfolder + r"//down"
 
 def init_browser():
     options = webdriver.ChromeOptions()
-    prefs={"download.default_directory": down_path, "download.directory_upgrade": True}
+    prefs={"download.default_directory": "/root/daring3/down", "download.directory_upgrade": True}
     options.add_experimental_option("prefs",prefs )
     options.add_experimental_option("detach", True)
     if OS_type == "Linux":
@@ -89,5 +89,8 @@ def cek_id(browser):
 def status_checker(browser, full_id):
     soup = BeautifulSoup(browser.page_source, 'html.parser')
     main = soup.find("div", {"id": full_id})
-    status = main.attrs["class"][2]
-    return status
+    try:
+        status = main.attrs["class"][2]
+        return status
+    except:
+        return "no-status-found"
