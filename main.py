@@ -26,7 +26,7 @@ async def looping():
             await schedul()
             await asyncio.sleep(600)
             total_cek += 1
-            await send_total(total_cek)
+            send_total(total_cek)
         except :
             await send_msg(f"An error occured at looping, {traceback.format_exc()}")
 
