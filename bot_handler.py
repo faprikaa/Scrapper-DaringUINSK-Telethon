@@ -25,6 +25,3 @@ async def send_file(file_name):
     file_name_dir = "down/" + file_name
     file_upload = await bot.upload_file(file_name_dir)
     await bot.send_file(chat, file_upload)
-
-def bot_prepare():
-    return bot
