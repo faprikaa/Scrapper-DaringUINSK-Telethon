@@ -4,12 +4,14 @@ from  bot_handler import *
 import traceback
 from data_handler import *
 from bot_handler import *
-from broweb_handler import *
+import broweb_handler
 
 thisfolder = os.getcwd()
 dl_path = thisfolder + r"//down"
 
-async def files_download(browser, full_id, total_file):
+browser = broweb_handler.browser
+
+async def files_download(full_id, total_file):
     try:
         for i in range(1, total_file +1 ):
             file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p[{i}]/span/a')
@@ -35,7 +37,7 @@ async def files_download(browser, full_id, total_file):
     except :
         return  traceback.format_exc()
 
-async def file_download(browser, full_id):
+async def file_download(full_id):
     try :
         file = browser.find_element(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p/span/a')
         link = file.get_attribute("href")
@@ -61,13 +63,11 @@ async def file_download(browser, full_id):
         return  traceback.format_exc()  
 
 def get_file_name(filename):
-    cut_filename = filename[0:10]
-    try:
-        folder = os.listdir(dl_path)
-        for file in folder:
-            if file.startswith(cut_filename):
-                final_file_name = file
-        return final_file_name
-    except Exception as e:
-        return e
+    folder = os.listdir(dl_path)
+    if filename.endswith('.'):
+        filename = filename[0:-4]
+    if filename in folder:
+        return filename
+    else:
+        return Exception
     
