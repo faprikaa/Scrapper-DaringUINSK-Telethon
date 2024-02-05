@@ -250,7 +250,7 @@ def ss_element(full_id):
     ele = browser.find_element(By.ID, f"{full_id}")
     browser.execute_script("arguments[0].scrollIntoView(true);", ele)
 
-    if(os.path.exists != True):
+    if(os.path.exists("pic") != True):
         print("Folders Pict tidak ada, Membuat Folder Pict")
         os.makedirs("pic")
     ele.screenshot(img_name)
