@@ -249,5 +249,9 @@ def ss_element(full_id):
     img_name = "pic/" + full_id + ".png"
     ele = browser.find_element(By.ID, f"{full_id}")
     browser.execute_script("arguments[0].scrollIntoView(true);", ele)
+
+    if(os.path.exists != True):
+        print("Folders Pict tidak ada, Membuat Folder Pict")
+        os.makedirs("pic")
     ele.screenshot(img_name)
     return img_name
