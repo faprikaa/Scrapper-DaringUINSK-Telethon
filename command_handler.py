@@ -55,34 +55,28 @@ async def handler(event):
 @bot.on(events.NewMessage(pattern='/fcek(?:\s|$)(.*)'))
 async def handler(event):
     arr_id = await cek_id()
-    try:
-        icmd = int(event.pattern_match.group(1).strip())
+    argument = event.pattern_match.group(1).strip()
 
-        if icmd <= 5:
-            alert_checker()
-            await send_msg(f"Melakukan {icmd} Force Cek ")
-            arr_id = await cek_id()
-            arr_id2 = arr_id[0:icmd]
-            await force_cek_jenis_all(arr_id2)
-    except Exception as e:
-        print(e)
-        cmd = event.pattern_match.group(1).strip().lower()
-
-        if cmd == '':
-            alert_checker()
-            await send_msg("Melakukan Force Cek")
-            await force_cek_jenis_all(arr_id)
-        elif cmd == 'next':
-            alert_checker()
-            click_next()
-            await send_msg("Melakukan Force Cek Next")
-            arr_id = await cek_id()
-            arr_id2 = arr_id[-5:]
-            await force_cek_jenis_all(arr_id2)
-        else:
-            print(cmd)
-            print(type(cmd))
-
+    if argument == "" :
+        alert_checker()
+        await send_msg("Melakukan Force Cek")
+        await force_cek_jenis_all(arr_id)
+    elif argument == 'next':
+        alert_checker()
+        click_next()
+        await send_msg("Melakukan Force Cek Next")
+        arr_id = await cek_id()
+        arr_id2 = arr_id[-5:]
+        await force_cek_jenis_all(arr_id2)
+    elif int(argument) >= 0 :
+        alert_checker()
+        await send_msg(f"Melakukan {argument} Force Cek ")
+        arr_id = await cek_id()
+        arr_id2 = arr_id[0:int(argument)]
+        await force_cek_jenis_all(arr_id2)
+    else:
+        print(argument)
+        print(type(argument))
 
 @bot.on(events.NewMessage(pattern=r"/ss(?:\s+(.+))?"))
 async def handler(event):

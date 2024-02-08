@@ -24,6 +24,7 @@ def jsonf_read():
     return data
 
 def cek_jenis(full_id):
+    # print(full_id)
     WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
     )
@@ -80,7 +81,7 @@ async def cek_jenis_all(all_id=False, data=False):
     WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
     )
-    total_tugas_baru = 0 
+    total_tugas_baru = 0
     for full_id in all_id:
         jenis = cek_jenis(full_id)
         if jenis == "err-1":
@@ -208,6 +209,8 @@ async def force_cek_jenis_all(all_id):
     WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
     )
+    print(all_id)
+
     for full_id in all_id:
         jenis = cek_jenis(full_id)
         try:

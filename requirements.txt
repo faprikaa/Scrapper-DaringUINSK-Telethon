@@ -1,4 +1,4 @@
-selenium==4.8.0
+selenium
 Pillow
 pickle5
 os-sys
@@ -9,3 +9,6 @@ telethon
 lxml
 configparser
 nest-asyncio
+pytz
+webdriver_manager
+psutil

@@ -44,8 +44,8 @@ def init_browser():
     else:
         ser = Service("driver/chromedriver.exe")
     browser = webdriver.Chrome(service=ser, options=options)
-    # browser.maximize_window()
     browser.set_window_size(1920, 1080)
+    browser.maximize_window()
     return browser
 
 
