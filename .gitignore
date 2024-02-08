@@ -1,3 +1,5 @@
 config.ini
 cookies.*
 __pycache__
+pic/*
+down/*
