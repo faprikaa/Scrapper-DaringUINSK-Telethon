@@ -1,6 +1,8 @@
 import traceback
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
+
+from Core.File import FileFromPost
 from data_handler import *
 from bot_handler import *
 from file_handler import *
@@ -16,9 +18,8 @@ async def tugasbot(full_id, data=False):
     status = main.attrs["class"][2]
     text_a = main.get_text(" | ", strip = True ).split(" | ")
     parsered = tugas_parser(text_a)
+    files = FileFromPost(full_id)
 
-    total_file = len(browser.find_elements(By.XPATH,f'//*[@id="{full_id}"]/div[3]/p'))
-    
     waktu = main.find("div", {"class": "time_post"})
     waktu2 = waktu.get('id')
 
@@ -28,7 +29,7 @@ async def tugasbot(full_id, data=False):
 **Matkul : **{parsered[2]}
 **Dosen : **{parsered[3]}
 **Deskripsi : **{parsered[4]}
-**Total File : **{total_file}
+**Total File : **{files.total_file}
 **Waktu mulai**{parsered[5]}
 **Waktu mulai**{parsered[6]}
 **Status : **{status}
@@ -43,15 +44,23 @@ async def tugasbot(full_id, data=False):
         print(len(capt))
         capt2 = capt[:512]
         await send_pic(img_name, capt2)
-        
 
-    # download file yang ada pada post
-    await dl_file( total_file, full_id)
-    
+    await files.send_file()
     if data:
-        data[f"{full_id}"] = {"jenis" : parsered[0], "Jurusan" : parsered[1], "Matkul" : parsered[2], "Dosen" : parsered[3], "Deskripsi" : parsered[4], "Waktu mulai" : parsered[5], "Waktu mulai" : parsered[6], "Status" : status, "Picname" : img_name, "waktu-post" : waktu2} 
+        data[f"{full_id}"] = {
+            "jenis": parsered[0],
+            "Jurusan": parsered[1],
+            "Matkul": parsered[2],
+            "Dosen": parsered[3],
+            "Deskripsi": parsered[4],
+            "Waktu mulai": parsered[5],
+            "Waktu mulai": parsered[6],
+            "Status": status,
+            "Picname": img_name,
+            "waktu-post": waktu2
+        }
         return data
-    
+
 async def diskusibot(full_id, data=False):
     # ambil text
     soup = BeautifulSoup(browser.page_source, 'html.parser')

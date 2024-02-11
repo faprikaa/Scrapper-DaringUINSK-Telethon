@@ -20,7 +20,7 @@ looping = scheduler.looping
 @bot.on(events.NewMessage(pattern='/cek(?:\s|$)(.*)'))
 async def handler(event):
     try:
-        cmd = int(event.pattern_match.group(1)) 
+        cmd = int(event.pattern_match.group(1))
 
         if cmd <= 5:
             await send_msg(f"Melakukan {cmd} Cek")
@@ -57,7 +57,7 @@ async def handler(event):
     arr_id = await cek_id()
     argument = event.pattern_match.group(1).strip()
 
-    if argument == "" :
+    if argument == "":
         alert_checker()
         await send_msg("Melakukan Force Cek")
         await force_cek_jenis_all(arr_id)
@@ -68,7 +68,7 @@ async def handler(event):
         arr_id = await cek_id()
         arr_id2 = arr_id[-5:]
         await force_cek_jenis_all(arr_id2)
-    elif int(argument) >= 0 :
+    elif int(argument) >= 0:
         alert_checker()
         await send_msg(f"Melakukan {argument} Force Cek ")
         arr_id = await cek_id()
@@ -77,6 +77,7 @@ async def handler(event):
     else:
         print(argument)
         print(type(argument))
+
 
 @bot.on(events.NewMessage(pattern=r"/ss(?:\s+(.+))?"))
 async def handler(event):
@@ -214,10 +215,25 @@ async def handler(event):
     cmd = event.pattern_match.group(1).strip().lower()
     await send_msg(f"Menjalankan Cek {cmd}")
     if cmd == '':
-        await send_msg(f"`ongoing` : untuk postingan yang aktif \n`notyet` : untuk postingan yang belum aktif \n`completed` : untuk postingan yang sudah aktif")
+        await send_msg(
+            f"`ongoing` : untuk postingan yang aktif \n`notyet` : untuk postingan yang belum aktif \n`completed` : untuk postingan yang sudah aktif")
     else:
         cek = await cek_by_status(cmd)
         if cek == "error-01":
             await send_msg("mohon masukan status yang valid")
         elif cek == "error-02":
             await send_msg(f"status {cmd} tidak ditemukan")
+
+
+@bot.on(events.NewMessage(pattern='/upload(?:\s+(.+))?$'))
+async def upload_handler(event):
+    arg = str(event.pattern_match.group(1))
+    print(event.is_reply, arg is None)
+    if event.message.is_reply:
+        replied_message = await event.get_reply_message()
+        for x in replied_message.document.attributes:
+            print(x.file_name)
+        res = await bot.download_media(replied_message, 'download/')
+        ele = browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[2]/ol/li[1]/div[1]/div[3]/div/div[1]/a")
+        ele.click()
+        ele.send_keys(res)

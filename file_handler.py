@@ -13,7 +13,6 @@ dl_path = os.path.join(thisfolder, str(config.get('Driver', 'download_path')))
 
 browser = broweb_handler.browser
 
-
 async def files_download(full_id, total_file):
     try:
         for i in range(1, total_file + 1):
