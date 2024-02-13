@@ -4,14 +4,16 @@ from selenium.webdriver.common.by import By
 
 from bot_handler import config, send_file
 from broweb_handler import browser
+from utils import post_id_to_html_id
 
 
 class FileFromPost:
     def __init__(self, post_id):
         current_folder = os.getcwd()
         self.post_id = post_id
+        html_id = post_id_to_html_id(post_id)
         self.download_path = os.path.join(current_folder, str(config.get('Driver', 'download_path')))
-        self.total_file = len(browser.find_elements(By.XPATH, f'//*[@id="{post_id}"]/div[3]/p'))
+        self.total_file = len(browser.find_elements(By.XPATH, f'//*[@id="{html_id}"]/div[3]/p'))
         self.name = []
         self.link = []
         self.clickable = []
@@ -26,7 +28,8 @@ class FileFromPost:
 
     def get_multi_file_information(self):
         for i in range(1, self.total_file + 1):
-            file_element = browser.find_element(By.XPATH, f'//*[@id="{self.post_id}"]/div[3]/p[{i}]/span/a')
+            file_element = browser.find_element(By.XPATH,
+                                                f'//*[@id="{post_id_to_html_id(self.post_id)}"]/div[3]/p[{i}]/span/a')
             self.file_element.append(file_element)
             file = File(file_element)
             self.name.append(file.name)
@@ -36,7 +39,8 @@ class FileFromPost:
             self.is_downloaded.append(file.is_downloaded)
 
     def get_file_information(self):
-        self.file_element = browser.find_element(By.XPATH, f'//*[@id="{self.post_id}"]/div[3]/p/span/a')
+        self.file_element = browser.find_element(By.XPATH,
+                                                 f'//*[@id="{post_id_to_html_id(self.post_id)}"]/div[3]/p/span/a')
         file = File(self.file_element)
         self.name = file.name
         self.link = file.link
@@ -44,18 +48,17 @@ class FileFromPost:
         self.path = file.path
         self.is_downloaded = file.is_downloaded
 
-    def download_file(self):
+    def download(self):
         if self.total_file > 1:
             for clickable in self.clickable:
                 clickable.click()
-
         else:
             # noinspection PyUnresolvedReferences
             self.clickable.click()
 
-    async def send_file(self, overwrite=True):
+    async def send_file(self, overwrite=False):
         if overwrite or not self.is_downloaded:
-            self.download_file()
+            self.download()
         if self.total_file > 1:
             for path in self.path:
                 await send_file(path)
@@ -74,27 +77,15 @@ class File:
         self.path = os.path.join(self.download_path, self.name)
         self.is_downloaded = os.path.isfile(self.path)
 
-    def download_file(self):
-        self.clickable.click()
-
-    async def send_file(self, overwrite=True):
-        if overwrite or not self.is_downloaded:
-            self.download_file()
-            self.is_downloaded = True
-        await send_file(self.path)
-
-    def get_file_name_from_folder(self, partial_filename):
-        for filename in os.listdir(self.download_path):
-            if filename.startswith(partial_filename):
-                return filename  # to get  the first found file
-
     def get_file_name_from_element(self):
         folder = os.listdir(self.download_path)
+        print(self.element)
         element_text = self.element.text
         if element_text.endswith('.'):
             sliced_filename = element_text[0:-4]
-            filename = self.get_file_name_from_folder(sliced_filename)
-            return filename
+            for filename in os.listdir(self.download_path):
+                if filename.startswith(sliced_filename):
+                    return filename  # to get  the first found file
         elif element_text in folder:
             return element_text
         else:

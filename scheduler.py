@@ -21,10 +21,12 @@ Selasa = config.get('jadwal', 'Selasa')
 Rabu = config.get('jadwal', 'Rabu')
 Kamis = config.get('jadwal', 'Kamis')
 Jumat = config.get('jadwal', 'Jumat')
+USE_SCHEDULER = config.getboolean('jadwal', 'scheduler')
+LOOP_INTERVAL = config.getint('jadwal', 'looping_interval')
 
-time_jakarta =pytz.timezone('Asia/Jakarta')
+time_jakarta = pytz.timezone('Asia/Jakarta')
 skrg = datetime.datetime.now(time_jakarta)
-hari_ini = skrg.strftime("%A" )
+hari_ini = skrg.strftime("%A")
 jam_ini = skrg.strftime("%H:%M")
 
 sudah_cek = 0
@@ -32,25 +34,27 @@ send_notif = False
 
 jam_belajar = []
 
+
 def hari_parser(hari):
     try:
         hari_arr = hari.split(", ")
         return hari_arr
-    except :
+    except:
         print(Exception)
+
 
 async def menit_checker(t1, t2):
     global waktu_jadwal, sudah_cek, send_notif, stop
     while True:
         skrg = datetime.datetime.now(time_jakarta)
         jam_ini = skrg.strftime("%H:%M")
-        if stop > 1 :
+        if stop > 1:
             await asyncio.sleep(stop)
             stop = 0
-            
+
         if t1 <= jam_ini < t2:
             alert_checker()
-            await time_checker(t1 , t2)
+            await time_checker(t1, t2)
             ids = await cek_id()
             browser.get("https://daring.uin-suka.ac.id")
             try:
@@ -66,14 +70,16 @@ async def menit_checker(t1, t2):
                 sudah_cek = 0
             await asyncio.sleep(30)
         elif jam_ini == t2:
-            await send_msg(f"Auto scrape berhenti,\nsaat ini **{jam_ini}** dan telah melakukan auto cek sebanyak {sudah_cek}")
+            await send_msg(
+                f"Auto scrape berhenti,\nsaat ini **{jam_ini}** dan telah melakukan auto cek sebanyak {sudah_cek}")
             sudah_cek = 0
             send_notif = False
             await asyncio.sleep(60)
             break
-        else :
+        else:
             send_notif = False
             break
+
 
 async def checker(arr_jam):
     for jam in arr_jam:
@@ -82,10 +88,11 @@ async def checker(arr_jam):
         if jam:
             await menit_checker(jams[0], jams[1])
 
+
 async def schedul():
-    time_jakarta =pytz.timezone('Asia/Jakarta')
+    time_jakarta = pytz.timezone('Asia/Jakarta')
     skrg = datetime.datetime.now(time_jakarta)
-    hari_ini = skrg.strftime("%A" )
+    hari_ini = skrg.strftime("%A")
     if hari_ini == "Monday":
         hari = hari_parser(Senin)
         await checker(hari)
@@ -101,9 +108,10 @@ async def schedul():
     elif hari_ini == "Friday":
         hari = hari_parser(Jumat)
         await checker(hari)
-    else :
+    else:
         return None
         pass
+
 
 async def cookies_checker():
     cooki = browser.get_cookies
@@ -116,47 +124,55 @@ async def cookies_checker():
         raise Exception
     gmt = time.gmtime()
     timestamp_now = calendar.timegm(gmt)
-    try :
+    try:
         if timestamp_now == expiry_daring:
             await send_msg("Cookies habis ketika akan melakukan scrape, mengambil cookies baru")
             login()
     except:
         pass
 
-async def time_checker(t1,t2):
+
+async def time_checker(t1, t2):
     skrg = datetime.datetime.now(time_jakarta)
     jam_ini = skrg.strftime("%H:%M")
-    hari_ini = skrg.strftime("%A" )
+    hari_ini = skrg.strftime("%A")
     global send_notif
     if send_notif == False:
-        await send_msg(f"Saat ini **{hari_ini}-{jam_ini}** sesuai dengan **{t1}** - **{t2}**\nMemasuki waktu jadwal dan auto scrape mode")
+        await send_msg(
+            f"Saat ini **{hari_ini}-{jam_ini}** sesuai dengan **{t1}** - **{t2}**\nMemasuki waktu jadwal dan auto scrape mode")
         send_notif = True
 
+
 async def init_schedul(datas):
-    global data
-    data = datas
-    await send_msg("Scheduler Berjalan !!")
+    if USE_SCHEDULER:
+        global data
+        data = datas
+        await send_msg("Scheduler Berjalan !!")
+        await looping()
+
 
 async def looping():
     global total_cek
-    total_cek = 1   
+    total_cek = 1
     while True:
         try:
             await schedul()
             await reminder()
             await asyncio.sleep(600)
             total_cek += 1
-        except :
+        except:
             await send_msg(f"An error occured at looping, {traceback.format_exc()}")
-        
+
+
 async def scheduler_check():
-    time_jakarta =pytz.timezone('Asia/Jakarta')
+    time_jakarta = pytz.timezone('Asia/Jakarta')
     skrg = datetime.datetime.now(time_jakarta)
-    hari_ini = skrg.strftime("%A" )
+    hari_ini = skrg.strftime("%A")
     jam_ini2 = skrg.strftime("%H:%M")
     cek = jadwal_check(hari_ini)
     await send_msg(f"waktu saat ini :\nhari : {hari_ini}\njam : {jam_ini2}\njadwal : {cek[1]}\njadwal cek: {cek[0]}")
-    
+
+
 def jadwal_check(hari):
     if hari == "Monday":
         today = Senin
@@ -173,14 +189,14 @@ def jadwal_check(hari):
     elif hari == "Friday":
         today = Jumat
         hari2 = hari_parser(Jumat)
-    else :
-        return [" - ","tidak ada jadwal"]
+    else:
+        return [" - ", "tidak ada jadwal"]
     hasil_check = []
     hasil_check.clear()
-    for jam in hari2 :
-        jams = jam.split(" - ") 
+    for jam in hari2:
+        jams = jam.split(" - ")
         hasil = jams[0] <= jam_ini < jams[1]
-        if hasil :
+        if hasil:
             hasil_check.append("true")
         else:
             hasil_check.append("false")
@@ -191,21 +207,25 @@ def jadwal_check(hari):
     hasil_arr.append(today)
     return hasil_arr
 
+
 async def reminder():
-    time_jakarta =pytz.timezone('Asia/Jakarta')
+    time_jakarta = pytz.timezone('Asia/Jakarta')
     skrg = datetime.datetime.now(time_jakarta)
     jam_ini2 = skrg.strftime("%H:%M")
     if jam_ini2 == "07:00":
         cek = await cek_by_status("ongoing")
 
+
 @bot.on(events.NewMessage(pattern='(?i)/*loop'))
 async def handler(event):
     await send_msg(f"Total melakukan loop adalah {total_cek}")
-    
+
+
 @bot.on(events.NewMessage(pattern='(?i)/*schcek'))
 async def handler(event):
     await scheduler_check()
-    
+
+
 @bot.on(events.NewMessage(pattern='/stop (-?\d+)'))
 async def handler(event):
     message = event.pattern_match.group(1)

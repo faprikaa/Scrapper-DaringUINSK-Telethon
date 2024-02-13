@@ -13,131 +13,132 @@ import json
 from configparser import ConfigParser
 import traceback
 import bot_handler
+from util.config import DOWNLOAD_PATH, OS_TYPE, TIMEZONE, CHAT_ID, USERNAME, PASSWORD
+from bot import bot
 
-send_msg = bot_handler.send_msg
-send_file = bot_handler.send_file
-
-config = ConfigParser()
-config.read('config.ini')
-username = config.get('Login', 'username')
-password = config.get('Login', 'password')
-OS_type = config.get('Driver', 'OS')
-
-time_jakarta = pytz.timezone('Asia/Jakarta')
 thisfolder = os.getcwd()
-down_path = os.path.join(thisfolder, str(config.get('Driver', 'download_path')))
-
-
-def init_browser():
-    options = webdriver.ChromeOptions()
-    prefs = {"download.default_directory": down_path,
-             "download.directory_upgrade": True}
-    options.add_experimental_option("prefs", prefs)
-    options.add_experimental_option("detach", True)
-    if OS_type == "Linux":
-        options.add_argument("disable-infobars")
-        options.add_argument("--disable-extensions")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--headless=new")
-        options.add_argument("--no-sandbox")
-        ser = Service("/usr/bin/chromedriver")
-    else:
-        ser = Service("driver/chromedriver.exe")
-    browser = webdriver.Chrome(service=ser, options=options)
-    browser.set_window_size(1920, 1080)
-    browser.maximize_window()
-    return browser
-
+down_path = os.path.join(thisfolder, DOWNLOAD_PATH)
 
 async def login():
+    php_cookie = ""
+    exp_cookie = ""
+    msg = ""
     try:
         browser.get("https://daring.uin-suka.ac.id")
     except UnexpectedAlertPresentException:
-        a = browser.switch_to.alert()
+        a = browser.switch_to.alert
         a.accept()
         browser.get("https://daring.uin-suka.ac.id")
     try:
         browser.delete_cookie("PHPSESSID")
         openfile = open("cookies.txt", "r+")
         old_cookies = json.load(openfile)
-        for i in range(len(old_cookies)):
-            browser.add_cookie(old_cookies[i])
-            if old_cookies[i]["name"] == "PHPSESSID":
-                cookiez = old_cookies[i]["value"]
-                expired = datetime.datetime.fromtimestamp(
-                    old_cookies[i]["expiry"], time_jakarta)
+        for cookie in old_cookies:
+            browser.add_cookie(cookie)
+            if cookie["name"] == "PHPSESSID":
+                php_cookie = cookie["value"]
+                exp_cookie = datetime.datetime.fromtimestamp(cookie["expiry"], TIMEZONE)
+
         browser.get("https://daring.uin-suka.ac.id")
         WebDriverWait(browser, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
         )
         nama = browser.find_element(
             By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
-        await send_msg(f"Berhasil Login dengan cookies yang sudah ada !\n`PHPSESSID` : `{cookiez}`,\nnama : **{nama.text}**,\nexpired : **{expired}** ")
+        msg = f"""
+        Berhasil login dengan cookies yang ada !
+        `PHPSESSID` : {php_cookie}
+        `EXPIRY` : {exp_cookie}
+        Nama : {nama}
+        """
+        openfile.close()
+
     except:
-        await send_msg("Tidak bisa login dengan cookies yang ada, mencoba mengambil cookies baru")
+        msg1 = await bot.send_message(CHAT_ID, "Tidak bisa login dengan cookies yang ada, mencoba mengambil cookies baru")
         try:
-            browser.find_element(By.ID, "username").send_keys(username)
-            browser.find_element(By.ID, "password").send_keys(password)
+            browser.find_element(By.ID, "username").send_keys(USERNAME)
+            browser.find_element(By.ID, "password").send_keys(PASSWORD)
             browser.find_element(By.CLASS_NAME, "btn-uin").click()
             browser.implicitly_wait(5)
             new_cookies = browser.get_cookies()
-            for i in range(len(new_cookies)):
-                if new_cookies[i]["name"] == "PHPSESSID":
-                    cookiez = new_cookies[i]["value"]
-                    expired = datetime.datetime.fromtimestamp(
-                        new_cookies[i]["expiry"], time_jakarta)
+            for cookie in new_cookies:
+                browser.add_cookie(cookie)
+                if cookie["name"] == "PHPSESSID":
+                    php_cookie = cookie["value"]
+                    exp_cookie = datetime.datetime.fromtimestamp(cookie["expiry"], TIMEZONE)
             nama = browser.find_element(
                 By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
-            await send_msg(f"cookies berhasil didapatkan !\n`PHPSESSID` : `{cookiez}` \nnama : **{nama.text}**,\nexpired : **{expired}**")
+            msg = f"""
+            Berhasil login dengan cookies yang ada !
+            `PHPSESSID` : {php_cookie}
+            `EXPIRY` : {exp_cookie}
+            Nama : {nama}
+            """
             openfile = open("cookies.txt", "w+")
             json_cookies = json.dumps(new_cookies, indent=4)
             openfile.writelines(json_cookies)
+            openfile.close()
+
         except NoSuchElementException:
             new_cookies = browser.get_cookies()
-            for i in range(len(new_cookies)):
-                if new_cookies[i]["name"] == "PHPSESSID":
-                    cookiez = new_cookies[i]["value"]
-                    expired = datetime.datetime.fromtimestamp(
-                        new_cookies[i]["expiry"], time_jakarta)
+            for cookie in new_cookies:
+                browser.add_cookie(cookie)
+                if cookie["name"] == "PHPSESSID":
+                    php_cookie = cookie["value"]
+                    exp_cookie = datetime.datetime.fromtimestamp(cookie["expiry"], TIMEZONE)
             nama = browser.find_element(
                 By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
-            await send_msg(f"cookies berhasil didapatkan !\n`PHPSESSID` : `{cookiez}` \nnama : **{nama.text}**,\nexpired : **{expired}**")
+            msg = f"""
+            Berhasil login dengan cookies yang ada !
+            `PHPSESSID` : {php_cookie}
+            `EXPIRY` : {exp_cookie}
+            Nama : {nama}
+            """
             pass
         except:
-            await send_msg(f"An error occured, {traceback.format_exc()}")
+            await bot.send_message(CHAT_ID, f"An error occured, {traceback.format_exc()}")
+        else:
+            await bot.delete_messages(msg1)
+
+    await bot.send_message(CHAT_ID, msg)
     return browser
 
 
 async def cookies_login(cookies):
     try:
         browser.delete_cookie("PHPSESSID")
-        await send_msg(f"Mencoba login dengan cookies yang diberikan `{cookies}`")
+        await bot.send_message(CHAT_ID, f"Mencoba login dengan cookies yang diberikan `{cookies}`")
         browser.get("https://daring.uin-suka.ac.id")
         openfile = open("cookies.txt", "r+")
         old_cookies = json.load(openfile)
-        for i in range(len(old_cookies)):
-            if old_cookies[i]["name"] == "PHPSESSID":
-                old_cookies[i]["value"] = cookies
-            browser.add_cookie(old_cookies[i])
+        for cookie in old_cookies:
+            if cookie["name"] == "PHPSESSID":
+                cookie["value"] = cookies
+            browser.add_cookie(cookie)
         browser.get("https://daring.uin-suka.ac.id")
         try:
             WebDriverWait(browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box")))
         except TimeoutException:
-            await send_msg("Gagal login dengan cookies yang diberikan")
+            await bot.send_message(CHAT_ID, "Gagal login dengan cookies yang diberikan")
         else:
             new_cookies = browser.get_cookies()
-            for i in range(len(new_cookies)):
-                if new_cookies[i]["name"] == "PHPSESSID":
-                    cookiez = new_cookies[i]["value"]
-                    expired = datetime.datetime.fromtimestamp(
-                        old_cookies[i]["expiry"], time_jakarta)
-            pickle.dump(new_cookies, open("cookies.txt", "wb"))
+            for cookie in new_cookies:
+                browser.add_cookie(cookie)
+                if cookie["name"] == "PHPSESSID":
+                    php_cookie = cookie["value"]
+                    exp_cookie = datetime.datetime.fromtimestamp(cookie["expiry"], TIMEZONE)
             nama = browser.find_element(
                 By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
-            await send_msg(f"Berhasil login dengan !\n `PHPSESSID` : `{cookiez}` \nnama : **{nama.text}**,\nexpired : **{expired}**")
+            msg = f"""
+            Berhasil login dengan cookies yang ada !
+            `PHPSESSID` : {php_cookie}
+            `EXPIRY` : {exp_cookie}
+            Nama : {nama}
+            """
+            await bot.send_message(CHAT_ID, msg)
     except:
-        await send_msg(f"An error occured, {traceback.format_exc()}")
+        await bot.send_message(CHAT_ID ,f"An error occured, {traceback.format_exc()}")
 
 
 async def cek_id():
@@ -152,11 +153,12 @@ async def cek_id():
     except UnexpectedAlertPresentException:
         browser.get("https://daring.uin-suka.ac.id")
         await login()
+
     ids = browser.find_elements(
         By.XPATH, '//*[starts-with(@id, "dv-progres-sts")]')
-    for ii in range(len(ids)):
-        full_id = ids[ii].get_attribute('id')
-        all_id.append(full_id)
+    for id in ids:
+        html_id = id.get_attribute('id')
+        all_id.append(html_id)
     return all_id
 
 
@@ -172,7 +174,7 @@ def get_cookies():
 
 def alert_checker():
     try:
-        browser.switch_to.alert()
+        browser.switch_to.alert
     except:
         pass
     else:
@@ -189,4 +191,4 @@ def status_checker(full_id):
         return "no-status-found"
 
 
-browser = init_browser()
+# browser = init_browser()

@@ -90,7 +90,8 @@ async def cek_jenis_all(all_id=False, data=False):
         try:
             if full_id not in data:
                 if jenis=="Tugas":
-                    data = await tugasbot(full_id, data)
+                    # data = await tugasbot(full_id, data)
+                    # data =
                     total_tugas_baru = total_tugas_baru + 1
                 elif jenis=="Diskusi":
                     data = await diskusibot(full_id, data)
@@ -215,7 +216,10 @@ async def force_cek_jenis_all(all_id):
         jenis = cek_jenis(full_id)
         try:
             if jenis=="Tugas":
-                data = await tugasbot(full_id)
+                # data = await tugasbot(full_id)
+                tgs = Tugas(html_id_to_post_id(full_id))
+                data = tgs.to_json()
+                await tgs.send()
             elif jenis=="Diskusi":
                 data = await diskusibot(full_id)
             elif jenis=="Meeting":

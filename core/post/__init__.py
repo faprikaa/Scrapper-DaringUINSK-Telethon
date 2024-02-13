@@ -1,0 +1,2 @@
+from .TugasType import Tugas
+

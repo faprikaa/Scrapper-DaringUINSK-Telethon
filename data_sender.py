@@ -2,16 +2,21 @@ import traceback
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 
-from Core.File import FileFromPost
+from core.File import FileFromPost
+from core.post import Tugas
 from data_handler import *
 from bot_handler import *
 from file_handler import *
 from data_parser import *
 import broweb_handler
+from util import ss_element, html_id_to_post_id
 
 browser = broweb_handler.browser
 
 async def tugasbot(full_id, data=False):
+    tgs = Tugas(html_id_to_post_id(full_id))
+    print(tgs.__dict__)
+
     # pilih id yang mau dipakai
     soup = BeautifulSoup(browser.page_source, 'html.parser')
     main = soup.find("div", {"id": full_id})
@@ -73,7 +78,7 @@ async def diskusibot(full_id, data=False):
     waktu = main.find("div", {"class": "time_post"})
     waktu2 = waktu.get('id')
 
-    ## bot caption maker
+    ## bot2 caption maker
     capt = f"""**HTML-ID : ** `{full_id}`
 **Jenis :** {parsered[0]}
 **Jurusan :** {parsered[1]}
@@ -307,16 +312,7 @@ async def dl_file(total_file, full_id):
     elif total_file > 1:
         await files_download(full_id, total_file)
 
-def ss_element(full_id):
-    img_name = "pic/" + full_id + ".png"
-    ele = browser.find_element(By.ID, f"{full_id}")
-    browser.execute_script("arguments[0].scrollIntoView(true);", ele)
 
-    if(os.path.exists("pic") != True):
-        print("Folders Pict tidak ada, Membuat Folder Pict")
-        os.makedirs("pic")
-    ele.screenshot(img_name)
-    return img_name
 
 
 def get_video_link(full_id):

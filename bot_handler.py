@@ -2,16 +2,10 @@ from telethon import *
 from configparser import ConfigParser
 from telethon.errors import *
 
-# Read config.ini
-config = ConfigParser()
-config.read('config.ini')
+from util.config import API_ID, API_HASH, BOT_TOKEN
 
-api_id = config.getint('Telegram_bot', 'api_id')
-api_hash = config.get('Telegram_bot', 'api_hash')
-bot_token = config.get('Telegram_bot', 'bot_token')
-chat = config.getint('Telegram_bot', 'chat')
 
-bot = TelegramClient('anon', api_id, api_hash).start(bot_token=bot_token)
+
 
 async def send_msg(msg):
     try:
@@ -22,7 +16,8 @@ async def send_msg(msg):
         msg = msg[:2056]
         await bot.send_message(chat, msg)
 
-async def send_pic(pic_name, capt=False):
+
+async def send_pic(pic_name, capt=None):
     if capt:
         try:
             await bot.send_file(chat, pic_name, caption=capt)
@@ -33,6 +28,13 @@ async def send_pic(pic_name, capt=False):
     else:
         await bot.send_file(chat, pic_name)
 
+
 async def send_file(fpath):
-    file_upload = await bot.upload_file(fpath)
+    msg = await bot.send_message(chat, "Uploading...")
+
+    async def callback(current, total):
+        await bot.edit_message(msg, message=f"Uploaded: {format(current / total, '.2%')}")
+
+    file_upload = await bot.upload_file(fpath, progress_callback=callback)
     await bot.send_file(chat, file_upload)
+    await bot.delete_messages(chat, msg)
