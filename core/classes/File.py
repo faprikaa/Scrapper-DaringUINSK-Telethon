@@ -2,8 +2,10 @@ import os
 
 from selenium.webdriver.common.by import By
 
-from bot_handler import config, send_file
-from broweb_handler import browser
+from core.bot import bot
+from core.browser import browser
+from util import config
+from util.config import DOWNLOAD_PATH, CHAT_ID
 from utils import post_id_to_html_id
 
 
@@ -12,7 +14,7 @@ class FileFromPost:
         current_folder = os.getcwd()
         self.post_id = post_id
         html_id = post_id_to_html_id(post_id)
-        self.download_path = os.path.join(current_folder, str(config.get('Driver', 'download_path')))
+        self.download_path = os.path.join(current_folder, DOWNLOAD_PATH)
         self.total_file = len(browser.find_elements(By.XPATH, f'//*[@id="{html_id}"]/div[3]/p'))
         self.name = []
         self.link = []
@@ -57,20 +59,24 @@ class FileFromPost:
             self.clickable.click()
 
     async def send_file(self, overwrite=False):
+        msg = await bot.send_message(CHAT_ID,  "Downloading file...")
+        async def callback(current, total):
+            await bot.edit_message(msg, message=f"Uploading {format(current / total, '.2%')}")
         if overwrite or not self.is_downloaded:
             self.download()
         if self.total_file > 1:
             for path in self.path:
-                await send_file(path)
+                await bot.send_file(CHAT_ID, path, progress_callback=callback)
         else:
-            await send_file(self.path)
+            await bot.send_file(CHAT_ID, self.path, progress_callback=callback)
+        await bot.delete_messages(msg)
 
 
 class File:
     def __init__(self, file_element):
         self.element = file_element
         thisfolder = os.getcwd()
-        self.download_path = os.path.join(thisfolder, str(config.get('Driver', 'download_path')))
+        self.download_path = os.path.join(thisfolder, DOWNLOAD_PATH)
         self.name = self.get_file_name_from_element()
         self.link = self.element.get_attribute("href")
         self.clickable = self.element.find_element(By.XPATH, f"//a[@href='{self.link}']")

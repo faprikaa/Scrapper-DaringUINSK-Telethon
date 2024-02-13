@@ -2,10 +2,10 @@ import json
 
 from bs4 import BeautifulSoup
 
-import bot_handler
-from bot_handler import send_pic, bot
-from broweb_handler import browser
-from core.File import FileFromPost
+from core.bot import bot
+from core.browser import browser
+from core.classes.File import FileFromPost
+from util.config import CHAT_ID
 from utils import ss_element, post_id_to_html_id, generate_caption
 from telethon import Button
 
@@ -60,10 +60,11 @@ class Tugas:
     async def send(self):
         capt = generate_caption(self.to_json())
         buttons = [
-            Button.inline("Download File", f"download_file_{self.id}")
+            Button.inline("Download File", f"download_file_{self.id}"),
+            Button.inline("Hapus", "hapus")
         ]
         await bot.send_file(
-            entity=bot_handler.chat,
+            entity=CHAT_ID,
             caption=capt,
             file=self.pic_name,
             buttons=buttons

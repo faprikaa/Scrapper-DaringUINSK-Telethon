@@ -3,18 +3,14 @@ import selenium
 import time
 import psutil
 import os
-import scheduler
-from data_handler import *
-from bot_handler import *
+
+from broweb_handler import alert_checker
 from komen_handler import *
-from broweb_handler import *
 from selenium.common.exceptions import *
 from selenium.webdriver.common.by import By
 
-browser = broweb_handler.browser
-bot = bot_handler.bot
+from core.bot import bot
 
-looping = scheduler.looping
 
 
 @bot.on(events.NewMessage(pattern='/cek(?:\s|$)(.*)'))

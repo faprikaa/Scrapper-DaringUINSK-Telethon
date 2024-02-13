@@ -8,7 +8,6 @@ from selenium.webdriver.chrome.service import Service
 thisfolder = os.getcwd()
 down_path = os.path.join(thisfolder, DOWNLOAD_PATH)
 
-browser = None
 
 def init_browser():
     options = webdriver.ChromeOptions()
@@ -28,5 +27,6 @@ def init_browser():
     driver = webdriver.Chrome(service=ser, options=options)
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
-    browser = driver
     return driver
+
+browser = init_browser()

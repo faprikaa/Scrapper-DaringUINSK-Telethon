@@ -14,7 +14,7 @@ from configparser import ConfigParser
 import traceback
 import bot_handler
 from util.config import DOWNLOAD_PATH, OS_TYPE, TIMEZONE, CHAT_ID, USERNAME, PASSWORD
-from bot import bot
+from core.bot import bot
 
 thisfolder = os.getcwd()
 down_path = os.path.join(thisfolder, DOWNLOAD_PATH)
