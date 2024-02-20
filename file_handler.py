@@ -1,17 +1,12 @@
-import time, os, traceback
+import time
 
-from selenium.common import NoSuchElementException
-from selenium.webdriver.common.by import By
-from bot_handler import *
-import traceback
 from data_handler import *
-from bot_handler import *
-import broweb_handler
 
 thisfolder = os.getcwd()
 dl_path = os.path.join(thisfolder, str(config.get('Driver', 'download_path')))
 
 browser = broweb_handler.browser
+
 
 async def files_download(full_id, total_file):
     try:

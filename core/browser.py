@@ -1,9 +1,9 @@
 import os
 
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 
 from util.config import DOWNLOAD_PATH, OS_TYPE
-from selenium.webdriver.chrome.service import Service
 
 thisfolder = os.getcwd()
 down_path = os.path.join(thisfolder, DOWNLOAD_PATH)
@@ -28,5 +28,6 @@ def init_browser():
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
     return driver
+
 
 browser = init_browser()

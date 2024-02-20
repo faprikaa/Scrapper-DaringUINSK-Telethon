@@ -1,12 +1,6 @@
-from configparser import ConfigParser
-import datetime, time, calendar, sys, asyncio
-import pytz
+import calendar
+
 from data_handler import *
-import broweb_handler
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import *
 
 config = ConfigParser()
 config.read('config.ini')

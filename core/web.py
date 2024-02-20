@@ -1,20 +1,16 @@
-import json
 import traceback
-from datetime import datetime
-
-from bs4 import BeautifulSoup
-from selenium.webdriver.support import expected_conditions as EC
 
 from selenium.common import UnexpectedAlertPresentException, NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from core.bot import bot
-from core.post import Tugas
-from core.post.MateriType import Materi
-from util.config import TIMEZONE, CHAT_ID, USERNAME, PASSWORD
-from util.cookies import load_cookies_from_file, insert_cookies_to_browser, insert_cookies_to_file, get_php_cookie
 from core.browser import browser
+from core.post.Post import Post
+from util.config import CHAT_ID, USERNAME, PASSWORD
+from util.cookies import load_cookies_from_file, insert_cookies_to_browser, insert_cookies_to_file
+from util.web_utils import cek_jenis, get_nama_mhs
 from utils import html_id_to_post_id
 
 
@@ -69,6 +65,7 @@ Nama : {get_nama_mhs()}
 `EXPIRY` : `{exp_cookie}`
 Nama : {get_nama_mhs()}
             """
+            await bot.delete_messages(entity=msg1.entities, message_ids=msg1.id)
 
         except NoSuchElementException:
             pass
@@ -76,7 +73,6 @@ Nama : {get_nama_mhs()}
             await bot.send_message(CHAT_ID, f"An error occured, {traceback.format_exc()}")
         finally:
             await bot.send_message(CHAT_ID, msg)
-        await bot.delete_messages(entity=msg1.entities, message_ids=msg1.id)
 
     else:
         await bot.send_message(CHAT_ID, msg)
@@ -113,78 +109,13 @@ async def force_cek_jenis_all(all_id):
         EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
     )
     for html_id in all_id:
-        jenis = cek_jenis(html_id)
         try:
-            if jenis == "Tugas":
-                # data = await tugasbot(full_id)
-                tgs = Tugas(html_id_to_post_id(html_id))
-                data = tgs.to_json()
-                await tgs.send()
-            # elif jenis=="Diskusi":
-            #     data = await diskusibot(full_id)
-            # elif jenis=="Meeting":
-            #     data = await meetingbot(full_id)
-            # elif jenis=="Forum":
-            #     data = await forumbot(full_id)
-            elif jenis=="Materi":
-                m = Materi(html_id_to_post_id(html_id))
-                await m.send()
-                data = {}
-                # data = await materibot(html_id)
-            # elif jenis=="Video":
-            #     data = await videobot(full_id)
-            # elif jenis=="Pengumuman":
-            #     data = await pengumumanbot(full_id)
-            else:
-                pass
-                # await send_msg(f"Unknown post type, {jenis}")
+            post = Post(html_id_to_post_id(html_id))
+            await post.send()
         except Exception as e:
             await bot.send_message(CHAT_ID, f"An error occured, {traceback.format_exc()}")
         # await auto_hadir(full_id)
     pass
-
-
-def cek_jenis(html_id):
-    # print(full_id)
-    WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
-    )
-    soup = BeautifulSoup(browser.page_source, 'html.parser')
-
-    try:
-        main = soup.find("div", {"id": str(html_id)})
-    except:
-        browser.get("https://daring.uin-suka.ac.id/dashboard")
-        main = soup.find("div", {"id": str(html_id)})
-
-    try:
-        text_main = main.get_text(" | ", strip=True).split(" | ")
-    except AttributeError:
-        return "err-1"
-    except:
-        browser.get("https://daring.uin-suka.ac.id/dashboard")
-        WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box")))
-        soup2 = BeautifulSoup(browser.page_source, 'html.parser')
-        main2 = soup2.find("div", {"id": str(html_id)})
-        text_main = main2.get_text(" | ", strip=True).split(" | ")
-
-    jenis = text_main[0]
-    if jenis == "Forum":
-        return jenis
-    elif jenis == "Tugas":
-        return jenis
-    elif jenis == "Materi":
-        return jenis
-    elif jenis == "Pengumuman":
-        return jenis
-    else:
-        return (text_main[1])
-
-
-def get_nama_mhs():
-    nama = browser.find_element(
-        By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
-    return nama.text.strip()
 
 
 def alert_checker():

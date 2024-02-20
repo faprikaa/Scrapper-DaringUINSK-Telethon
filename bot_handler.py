@@ -1,10 +1,4 @@
-from telethon import *
-from configparser import ConfigParser
 from telethon.errors import *
-
-from util.config import API_ID, API_HASH, BOT_TOKEN
-
-
 
 
 async def send_msg(msg):

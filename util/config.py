@@ -1,7 +1,6 @@
 from configparser import ConfigParser
 
 import pytz
-from telethon import TelegramClient
 
 # Read config.ini
 config = ConfigParser()

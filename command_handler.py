@@ -1,16 +1,12 @@
-import asyncio
-import selenium
-import time
-import psutil
 import os
+import time
+
+import psutil
+from selenium.common.exceptions import *
 
 from broweb_handler import alert_checker
-from komen_handler import *
-from selenium.common.exceptions import *
-from selenium.webdriver.common.by import By
-
 from core.bot import bot
-
+from komen_handler import *
 
 
 @bot.on(events.NewMessage(pattern='/cek(?:\s|$)(.*)'))

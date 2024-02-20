@@ -1,23 +1,20 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import *
-from bs4 import BeautifulSoup
-import pickle
-import os
 import datetime
-import pytz
 import json
-from configparser import ConfigParser
+import os
 import traceback
-import bot_handler
-from util.config import DOWNLOAD_PATH, OS_TYPE, TIMEZONE, CHAT_ID, USERNAME, PASSWORD
+
+from bs4 import BeautifulSoup
+from selenium.common.exceptions import *
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+
 from core.bot import bot
+from util.config import DOWNLOAD_PATH, TIMEZONE, CHAT_ID, USERNAME, PASSWORD
 
 thisfolder = os.getcwd()
 down_path = os.path.join(thisfolder, DOWNLOAD_PATH)
+
 
 async def login():
     php_cookie = ""
@@ -54,7 +51,8 @@ async def login():
         openfile.close()
 
     except:
-        msg1 = await bot.send_message(CHAT_ID, "Tidak bisa login dengan cookies yang ada, mencoba mengambil cookies baru")
+        msg1 = await bot.send_message(CHAT_ID,
+                                      "Tidak bisa login dengan cookies yang ada, mencoba mengambil cookies baru")
         try:
             browser.find_element(By.ID, "username").send_keys(USERNAME)
             browser.find_element(By.ID, "password").send_keys(PASSWORD)
@@ -138,7 +136,7 @@ async def cookies_login(cookies):
             """
             await bot.send_message(CHAT_ID, msg)
     except:
-        await bot.send_message(CHAT_ID ,f"An error occured, {traceback.format_exc()}")
+        await bot.send_message(CHAT_ID, f"An error occured, {traceback.format_exc()}")
 
 
 async def cek_id():
@@ -189,6 +187,5 @@ def status_checker(full_id):
         return status
     except:
         return "no-status-found"
-
 
 # browser = init_browser()

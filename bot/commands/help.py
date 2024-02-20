@@ -1,9 +1,3 @@
-from telethon import events
-
-from core.bot import bot
-from util.config import CHAT_ID
-
-
 def dynamic_func():
     print("Hello there!")
 
@@ -24,4 +18,3 @@ def dynamic_func():
 #     for msg in list_msg:
 #         await bot.delete_messages(CHAT_ID, msg.id)
 #     await bot.delete_messages(CHAT_ID, msg1)
-

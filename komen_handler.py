@@ -1,11 +1,9 @@
 import requests
-import re
 from bs4 import BeautifulSoup
-import broweb_handler
-import re
-from bot_handler import *
-from selenium.common.exceptions import *
 from selenium.webdriver.common.by import By
+
+import broweb_handler
+from bot_handler import *
 
 browser = broweb_handler.browser
 login = broweb_handler.login

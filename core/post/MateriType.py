@@ -1,13 +1,11 @@
-import json
-
 from bs4 import BeautifulSoup
+from telethon import Button
 
 from core.bot import bot
 from core.browser import browser
 from core.classes.File import FileFromPost
 from util.config import CHAT_ID
 from utils import ss_element, post_id_to_html_id, generate_caption
-from telethon import Button
 
 
 class Materi:
@@ -27,7 +25,6 @@ class Materi:
 
     def parse(self):
         array_text = self.main.get_text(" | ", strip=True).split(" | ")
-        print(array_text)
 
         self.jenis = array_text[0]
         self.dosen = array_text[1]
@@ -57,7 +54,7 @@ class Materi:
             "total_file": self.file.total_file,
             "waktu_mulai": False,
             "waktu_selesai": False,
-            "status":None,
+            "status": None,
             "waktu_post": self.waktu_post
         }
         return data

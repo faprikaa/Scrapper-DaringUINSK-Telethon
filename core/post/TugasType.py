@@ -1,13 +1,11 @@
-import json
-
 from bs4 import BeautifulSoup
+from telethon import Button
 
 from core.bot import bot
 from core.browser import browser
 from core.classes.File import FileFromPost
 from util.config import CHAT_ID
 from utils import ss_element, post_id_to_html_id, generate_caption
-from telethon import Button
 
 
 class Tugas:
@@ -70,4 +68,3 @@ class Tugas:
             file=self.pic_name,
             buttons=buttons
         )
-

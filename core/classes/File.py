@@ -2,6 +2,7 @@ import os
 import time
 
 from selenium.webdriver.common.by import By
+
 from core.bot import bot
 from core.browser import browser
 from util.config import DOWNLOAD_PATH, CHAT_ID
@@ -34,8 +35,12 @@ class FileFromPost:
         file = File(file_element, self.download_path)
         self.files.append(file)
 
-    async def send_files(self, overwrite=False):
-        msg = await bot.send_message(CHAT_ID, "Downloading file...")
+    async def send_files(self, overwrite=False, reply_msg_id=None):
+        if reply_msg_id is None:
+            msg = await bot.send_message(CHAT_ID, "Downloading file...")
+        else:
+            msg = await bot.send_message(CHAT_ID, "Downloading file...", reply_to=reply_msg_id)
+
         try:
             for file in self.files:
                 await file.send_file(overwrite=overwrite, progress_msg=msg)
