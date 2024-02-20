@@ -1,15 +1,8 @@
 import asyncio
-import selenium
-import time
 
 from core.bot import bot as Bot
-from core.browser import browser
 from core.web import login
-from bot import *
-# from command_handler import *
-# from scheduler import *
-# from bot.button_callback_handler import *
-
+from bot.commands import *
 
 
 async def main():

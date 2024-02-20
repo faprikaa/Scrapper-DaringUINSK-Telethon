@@ -10,14 +10,14 @@ from utils import ss_element, post_id_to_html_id, generate_caption
 from telethon import Button
 
 
-class Tugas:
+class Materi:
     def __init__(self, post_id):
         self.id = post_id
         html_id = post_id_to_html_id(post_id)
         self.file = FileFromPost(self.id)
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         self.main = soup.find("div", {"id": html_id})
-        self.status = self.main.attrs["class"][2]
+        # self.status = self.main.attrs["class"][2]
         self.parse()
         self.ss_element()
 
@@ -27,16 +27,20 @@ class Tugas:
 
     def parse(self):
         array_text = self.main.get_text(" | ", strip=True).split(" | ")
-        self.jenis = array_text[0] + " | " + array_text[1]
+        print(array_text)
+
+        self.jenis = array_text[0]
+        self.dosen = array_text[1]
         self.jurusan = array_text[2]
         self.matkul = array_text[3]
-        self.dosen = array_text[4]
-        if array_text.index('Waktu Mulai') > array_text.index('|'):
-            self.deskripsi = " ".join(array_text[5:array_text.index('|') - self.file.total_file])
-        elif array_text.index('Waktu Mulai') < array_text.index('|'):
-            self.deskripsi = " ".join(array_text[5:array_text.index('Waktu Mulai')])
-        self.waktu_mulai = array_text[array_text.index("Waktu Mulai") + 1].removeprefix(": ")
-        self.waktu_selesai = array_text[array_text.index("Waktu Selesai") + 1].removeprefix(": ")
+        self.deskripsi = " ".join(array_text[4: array_text.index('|') - 1])
+
+        # if array_text.index('Waktu Mulai') > array_text.index('|'):
+        #     self.deskripsi = " ".join(array_text[5:array_text.index('|') - self.file.total_file])
+        # elif array_text.index('Waktu Mulai') < array_text.index('|'):
+        #     self.deskripsi = " ".join(array_text[5:array_text.index('Waktu Mulai')])
+        # self.waktu_mulai = array_text[array_text.index("Waktu Mulai") + 1].removeprefix(": ")
+        # self.waktu_selesai = array_text[array_text.index("Waktu Selesai") + 1].removeprefix(": ")
         self.waktu_post = array_text[-1]
 
     def ss_element(self):
@@ -51,9 +55,9 @@ class Tugas:
             "dosen": self.dosen,
             "deskripsi": self.deskripsi,
             "total_file": self.file.total_file,
-            "waktu_mulai": self.waktu_mulai,
-            "waktu_selesai": self.waktu_selesai,
-            "status": self.status,
+            "waktu_mulai": False,
+            "waktu_selesai": False,
+            "status":None,
             "waktu_post": self.waktu_post
         }
         return data
@@ -70,4 +74,3 @@ class Tugas:
             file=self.pic_name,
             buttons=buttons
         )
-

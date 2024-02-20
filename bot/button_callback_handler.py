@@ -11,7 +11,8 @@ from util.config import CHAT_ID
 async def handle(event: CallbackQuery.Event):
     post_id = event.data.decode().removeprefix("download_file_")
     file = FileFromPost(post_id)
-    await file.send_file()
+    if file.total_file != 0:
+        await file.send_files()
 
 
 @bot.on(events.CallbackQuery(pattern="hapus"))

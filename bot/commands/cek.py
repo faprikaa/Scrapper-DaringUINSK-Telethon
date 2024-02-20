@@ -49,7 +49,7 @@ async def handler(event):
 
     if argument == "":
         alert_checker()
-        msg =await bot.send_message(CHAT_ID, "Melakukan Force Cek")
+        msg = await bot.send_message(CHAT_ID, "Melakukan Force Cek")
         await force_cek_jenis_all(arr_id)
     elif argument == 'next':
         alert_checker()
@@ -67,4 +67,4 @@ async def handler(event):
     else:
         print(argument)
         print(type(argument))
-    await bot.delete_messages(message_ids=msg.id)
+    await bot.delete_messages(CHAT_ID, message_ids=msg.id)

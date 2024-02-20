@@ -11,6 +11,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from core.bot import bot
 from core.post import Tugas
+from core.post.MateriType import Materi
 from util.config import TIMEZONE, CHAT_ID, USERNAME, PASSWORD
 from util.cookies import load_cookies_from_file, insert_cookies_to_browser, insert_cookies_to_file, get_php_cookie
 from core.browser import browser
@@ -42,9 +43,9 @@ async def login():
         exp_cookie = php_json_cookie["expiry"]
         msg = f"""
         Berhasil login dengan cookies yang ada !
-    `PHPSESSID` : `{php_cookie}`
-    `EXPIRY` : `{exp_cookie}`
-    Nama : {get_nama_mhs()}
+`PHPSESSID` : `{php_cookie}`
+`EXPIRY` : `{exp_cookie}`
+Nama : {get_nama_mhs()}
         """
 
     except Exception as e:  # login dengan username dan pw
@@ -64,18 +65,18 @@ async def login():
             exp_cookie = php_json_cookie["expiry"]
             msg = f"""
             Berhasil login dengan username dan password !
-        `PHPSESSID` : `{php_cookie}`
-        `EXPIRY` : `{exp_cookie}`
-        Nama : {get_nama_mhs()}
+`PHPSESSID` : `{php_cookie}`
+`EXPIRY` : `{exp_cookie}`
+Nama : {get_nama_mhs()}
             """
 
         except NoSuchElementException:
             pass
         except:
             await bot.send_message(CHAT_ID, f"An error occured, {traceback.format_exc()}")
-        else:
-            await bot.delete_messages(entity=msg1.entities, message_ids=msg1.id)
+        finally:
             await bot.send_message(CHAT_ID, msg)
+        await bot.delete_messages(entity=msg1.entities, message_ids=msg1.id)
 
     else:
         await bot.send_message(CHAT_ID, msg)
@@ -101,6 +102,7 @@ async def cek_id():
         all_id.append(html_id)
     return all_id
 
+
 async def force_cek_jenis_all(all_id):
     try:
         browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
@@ -113,7 +115,7 @@ async def force_cek_jenis_all(all_id):
     for html_id in all_id:
         jenis = cek_jenis(html_id)
         try:
-            if jenis=="Tugas":
+            if jenis == "Tugas":
                 # data = await tugasbot(full_id)
                 tgs = Tugas(html_id_to_post_id(html_id))
                 data = tgs.to_json()
@@ -124,8 +126,11 @@ async def force_cek_jenis_all(all_id):
             #     data = await meetingbot(full_id)
             # elif jenis=="Forum":
             #     data = await forumbot(full_id)
-            # elif jenis=="Materi":
-            #     data = await materibot(full_id)
+            elif jenis=="Materi":
+                m = Materi(html_id_to_post_id(html_id))
+                await m.send()
+                data = {}
+                # data = await materibot(html_id)
             # elif jenis=="Video":
             #     data = await videobot(full_id)
             # elif jenis=="Pengumuman":

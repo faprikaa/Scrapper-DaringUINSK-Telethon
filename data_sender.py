@@ -1,3 +1,4 @@
+import pprint
 import traceback
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
@@ -198,6 +199,7 @@ async def materibot(full_id, data=False):
     soup = BeautifulSoup(browser.page_source, 'html.parser')
     main = soup.find("div", {"id": full_id})
     text_a = main.get_text(" | ", strip=True).split(" | ")
+    pprint.pprint(text_a)
     parsered = materi_parser(text_a)
 
     total_file = len(browser.find_elements(By.XPATH, f'//*[@id="{full_id}"]/div[3]/p'))

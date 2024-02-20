@@ -10,6 +10,7 @@ from bot_handler import *
 from broweb_handler import *
 from data_sender import *
 from komen_handler import *
+from utils import html_id_to_post_id
 
 config = ConfigParser()
 config.read('config.ini')
