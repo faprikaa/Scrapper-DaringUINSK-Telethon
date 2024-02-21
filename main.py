@@ -3,6 +3,7 @@ import asyncio
 from core.bot import bot as Bot
 from core.web import login
 from bot import *
+from komen.komen import cek_komen
 
 
 async def main():
@@ -10,6 +11,7 @@ async def main():
     # data = jsonf_read()
     # await init_schedul(data)
     print("bot berjalan")
+    # print(cek_komen("217646"))
     await Bot.run_until_disconnected()
 
 

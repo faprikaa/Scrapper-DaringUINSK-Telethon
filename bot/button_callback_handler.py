@@ -3,7 +3,7 @@ from telethon.events.callbackquery import CallbackQuery
 
 from core.bot import bot
 from core.classes.File import FileFromPost
-from core.post.Post import Post
+from core.classes.Post import Post
 from util.config import CHAT_ID
 from utils import generate_caption
 

@@ -22,11 +22,13 @@ def generate_caption(data, full):
     caption = ""
     data = DotMap(data)
     if not full:
-        caption += "**Informasi :\n**"
         caption += data.mata_kuliah + "\n"
         caption += f"`{data.post_id}` | " + data.jenis + " | " + (data.jenis_iter if data.jenis_iter else "") + "\n"
         caption += data.dosen + "\n\n"
         caption += "**Deskripsi : **\n" + data.deskripsi + "\n\n"
+        caption += "**Perlu Absen : **" + str(data.perlu_absen) + "\n"
+        if data.perlu_absen:
+            caption += "**Sudah Absen : **" + str(data.sudah_absen) + "\n"
         caption += "**Mulai : **" + str(data.waktu_mulai) + "\n"
         caption += "**Selesai : **" + str(data.waktu_selesai) + "\n"
         caption += "**Diposting : **" + data.waktu_post + "\n"

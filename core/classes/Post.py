@@ -4,6 +4,7 @@ from telethon import Button
 from core.bot import bot
 from core.browser import browser
 from core.classes.File import FileFromPost
+from komen.komen import count_hadir, cek_komen
 from util.config import CHAT_ID
 from util.web_utils import cek_jenis
 from utils import ss_element, post_id_to_html_id, generate_caption
@@ -11,6 +12,7 @@ from utils import ss_element, post_id_to_html_id, generate_caption
 
 class Post:
     def __init__(self, post_id):
+
         self.bentuk_pembelajaran = None
         self.materi_perkuliahan = None
         self.indikator_kemampuan = None
@@ -28,9 +30,16 @@ class Post:
         self.file = FileFromPost(self.id)
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         self.main = soup.find("div", {"id": html_id})
+        self.is_other_commented = True if len(soup.find("div", {"id": f"commentload{self.id}"})) > 0 else False
         self.status = None
         self.parse()
         self.ss_element()
+        if self.is_other_commented:
+            self.perlu_absen = True if count_hadir(self.id) > 0 else False
+            self.sudah_absen = cek_komen(self.id)["found"] if self.perlu_absen else False
+        else:
+            self.sudah_absen = None
+            self.perlu_absen = None
 
     def download(self):
         if self.file.total_file != 0:
@@ -89,6 +98,8 @@ class Post:
             "jenis": self.jenis,
             "jenis_iter": self.jenis_iter,
             "jurusan": self.jurusan,
+            "perlu_absen" : self.perlu_absen,
+            "sudah_absen" : self.sudah_absen,
             "mata_kuliah": self.matkul,
             "dosen": self.dosen,
             "deskripsi": self.deskripsi,

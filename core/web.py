@@ -7,7 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from core.bot import bot
 from core.browser import browser
-from core.post.Post import Post
+from core.classes.Post import Post
 from util.config import CHAT_ID, USERNAME, PASSWORD
 from util.cookies import load_cookies_from_file, insert_cookies_to_browser, insert_cookies_to_file
 from util.web_utils import cek_jenis, get_nama_mhs
@@ -15,8 +15,6 @@ from utils import html_id_to_post_id
 
 
 async def login():
-    php_cookie = ""
-    exp_cookie = ""
     msg = ""
 
     try:
@@ -65,7 +63,7 @@ Nama : {get_nama_mhs()}
 `EXPIRY` : `{exp_cookie}`
 Nama : {get_nama_mhs()}
             """
-            await bot.delete_messages(entity=msg1.entities, message_ids=msg1.id)
+            await bot.delete_messages(entity=CHAT_ID, message_ids=msg1.id)
 
         except NoSuchElementException:
             pass
