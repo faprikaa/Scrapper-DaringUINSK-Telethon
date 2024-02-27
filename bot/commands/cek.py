@@ -1,9 +1,8 @@
 from telethon import events
 
 from core.bot import bot
-from core.web import cek_id, alert_checker, force_cek_jenis_all
+from core.web import cek_id, alert_checker, cek_jenis_all, click_next
 from util.config import CHAT_ID
-from util.web_utils import click_next
 
 
 # @bot.on(events.NewMessage(pattern='/cek(?:\s|$)(.*)'))
@@ -50,21 +49,55 @@ async def handler(event):
     if argument == "":
         alert_checker()
         msg = await bot.send_message(CHAT_ID, "Melakukan Force Cek")
-        await force_cek_jenis_all(arr_id)
+        await cek_jenis_all(arr_id, False)
     elif argument == 'next':
         alert_checker()
-        click_next()
+        await click_next()
         msg = await bot.send_message(CHAT_ID, "Melakukan Force Cek Next")
         arr_id = await cek_id()
         arr_id2 = arr_id[-5:]
-        await force_cek_jenis_all(arr_id2)
+        await cek_jenis_all(arr_id2, False)
     elif int(argument) >= 0:
         alert_checker()
         msg = await bot.send_message(CHAT_ID, f"Melakukan {argument} Force Cek ")
         arr_id = await cek_id()
         arr_id2 = arr_id[0:int(argument)]
-        await force_cek_jenis_all(arr_id2)
+        await cek_jenis_all(arr_id2, False)
     else:
         print(argument)
         print(type(argument))
     await bot.delete_messages(CHAT_ID, message_ids=msg.id)
+
+
+@bot.on(events.NewMessage(pattern='/cek(?:\s|$)(.*)'))
+async def handler(event):
+    arr_id = await cek_id()
+    argument = event.pattern_match.group(1).strip()
+    msg = None
+
+    if argument == "":
+        alert_checker()
+        msg = await bot.send_message(CHAT_ID, "Melakukan Cek")
+        await cek_jenis_all(arr_id, True)
+    elif argument == 'next':
+        alert_checker()
+        await click_next()
+        msg = await bot.send_message(CHAT_ID, "Melakukan Cek Next")
+        arr_id = await cek_id()
+        arr_id2 = arr_id[-5:]
+        await cek_jenis_all(arr_id2, True)
+    elif int(argument) >= 0:
+        alert_checker()
+        msg = await bot.send_message(CHAT_ID, f"Melakukan {argument} Cek ")
+        arr_id = await cek_id()
+        arr_id2 = arr_id[0:int(argument)]
+        await cek_jenis_all(arr_id2, True)
+    else:
+        print(argument)
+        print(type(argument))
+    await bot.delete_messages(CHAT_ID, message_ids=msg.id)
+
+
+@bot.on(events.NewMessage(pattern='/next'))
+async def handler(event):
+    await bot.send_message(CHAT_ID,await click_next())

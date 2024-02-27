@@ -14,10 +14,7 @@ total_cek = 0
 
 
 async def scheduler_check():
-    skrg = datetime.now(TIMEZONE)
-    current_day = skrg.strftime("%A")
-    await jadwal_check(current_day)
-
+    await jadwal_check(datetime.now(TIMEZONE).strftime("%A"))
 
 async def minute_check(time_ranges):
     global total_cek
@@ -36,15 +33,8 @@ async def minute_check(time_ranges):
                 await send_loop_msg()
                 await asyncio.sleep(5)
 
-
 def gen():
     return random.randint(1, 5)
-
-
-@bot.on(events.CallbackQuery(pattern=r"cek"))
-async def handle(event: CallbackQuery.Event):
-    await send_loop_msg()
-
 
 async def send_loop_msg():
     global loop_msg  # Declare loop_msg as global before using it
@@ -74,7 +64,6 @@ Result = {result}
 Total Cek = {total_cek}
                     """
 
-
 async def jadwal_check(hari):
     if hari == "Monday":
         today = SENIN
@@ -95,23 +84,9 @@ async def jadwal_check(hari):
     hari_arr = hari_parser(today)
     await minute_check(hari_arr)
 
-
 def hari_parser(hari):
     try:
         hari_arr = hari.split(", ")
         return hari_arr
     except:
         print(Exception)
-
-
-@bot.on(events.NewMessage(pattern='/st'))
-async def handler(event):
-    asyncio.current_task().cancel()
-
-
-async def main():
-    await scheduler_check()
-    await bot.run_until_disconnected()
-
-
-asyncio.get_event_loop().run_until_complete(main())

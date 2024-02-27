@@ -1,3 +1,5 @@
+import json
+
 from bs4 import BeautifulSoup
 from telethon import Button
 
@@ -34,6 +36,7 @@ class Post:
         self.status = None
         self.parse()
         self.ss_element()
+        self.is_saved = self.check_is_saved()
         if self.is_other_commented:
             self.perlu_absen = True if count_hadir(self.id) > 0 else False
             self.sudah_absen = cek_komen(self.id)["found"] if self.perlu_absen else False
@@ -98,8 +101,8 @@ class Post:
             "jenis": self.jenis,
             "jenis_iter": self.jenis_iter,
             "jurusan": self.jurusan,
-            "perlu_absen" : self.perlu_absen,
-            "sudah_absen" : self.sudah_absen,
+            "perlu_absen": self.perlu_absen,
+            "sudah_absen": self.sudah_absen,
             "mata_kuliah": self.matkul,
             "dosen": self.dosen,
             "deskripsi": self.deskripsi,
@@ -134,6 +137,20 @@ class Post:
                 ]
             ]
         return buttons
+
+    def check_is_saved(self):
+        with open("data.json", "r+") as file:
+            data = json.load(file)
+            return self.id in data
+
+    def save_data(self):
+        if not self.is_saved:
+            with open("data.json", "r+") as file:
+                data = json.load(file)
+                data[self.id] = self.to_json()
+                file.seek(0)  # Move the file pointer to the beginning
+                json.dump(data, file, indent=4, sort_keys=True)
+                file.truncate()  # Truncate the remaining content (if any)
 
     async def send(self, full=False):
         capt = generate_caption(self.to_json(), full)

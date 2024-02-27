@@ -1,6 +1,8 @@
+import json
 import traceback
 
-from selenium.common import UnexpectedAlertPresentException, NoSuchElementException, TimeoutException
+from selenium.common import UnexpectedAlertPresentException, NoSuchElementException, TimeoutException, \
+    ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -10,7 +12,7 @@ from core.browser import browser
 from core.classes.Post import Post
 from util.config import CHAT_ID, USERNAME, PASSWORD
 from util.cookies import load_cookies_from_file, insert_cookies_to_browser, insert_cookies_to_file
-from util.web_utils import cek_jenis, get_nama_mhs
+from util.web_utils import get_nama_mhs
 from utils import html_id_to_post_id
 
 
@@ -97,23 +99,64 @@ async def cek_id():
     return all_id
 
 
-async def force_cek_jenis_all(all_id):
+async def load_saved_data():
+    try:
+        with open("data.json", "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}
+
+def save_data(data):
+    with open("data.json", "w") as file:
+        json.dump(data, file, indent=4)
+
+async def cek_jenis_all(all_id, force=False):
     try:
         browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
-    except:
-        await bot.send_message(CHAT_ID, "Cookies habis silahkan login ulang")
+    except NoSuchElementException:
+        await bot.send_message(CHAT_ID, "Cookies expired. Please login again.")
+        return
 
-    WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box"))
-    )
+    WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "dv-post-box")))
+
+    saved_data = await load_saved_data()
+    new_ids = []
+
     for html_id in all_id:
+        post_id = html_id_to_post_id(html_id)
+        if post_id not in saved_data:
+            new_ids.append(post_id)
+    if len(new_ids) < 1:
+        await bot.send_message(CHAT_ID, "Tidak ada postingan baru/")
+    for post_id in new_ids:
         try:
-            post = Post(html_id_to_post_id(html_id))
+            post = Post(post_id)
             await post.send()
+            if force:
+                saved_data[post_id] = post.to_json()
+                save_data(saved_data)
+
         except Exception as e:
-            await bot.send_message(CHAT_ID, f"An error occured, {traceback.format_exc()}")
-        # await auto_hadir(full_id)
-    pass
+            await bot.send_message(CHAT_ID, f"An error occurred: {e}")
+            # Optionally, log the error or handle it appropriately
+
+        # await auto_hadir(full_id)  # Uncomment if needed
+
+
+async def click_next():
+    button = browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[2]/div[12]/center/button")
+    try:
+        click = button.click()
+        expected = len(await cek_id()) + 1
+        WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, f'//*[@id="update"]/li[{expected}]')))
+        return ("Tombol Perlihatkan Sebelumnya berhasil di klik kali !!")
+    except UnexpectedAlertPresentException:
+        return ("Cookies habis silahkan login ulang")
+    except ElementNotInteractableException:
+        return ("Please wait 10 seconds before send this command again")
+    except:
+        return (f"An error occured at next, {traceback.format_exc()}")
+
 
 
 def alert_checker():

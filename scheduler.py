@@ -10,11 +10,11 @@ alert_checker = broweb_handler.alert_checker
 
 stop = 0
 
-Senin = config.get('jadwal', 'Senin')
-Selasa = config.get('jadwal', 'Selasa')
-Rabu = config.get('jadwal', 'Rabu')
-Kamis = config.get('jadwal', 'Kamis')
-Jumat = config.get('jadwal', 'Jumat')
+Senin = "08:50 - 10:35"
+Selasa = "15:30 - 17:15"
+Rabu = "07:00 - 08:45, 08:50 - 10:25, 12:30"
+Kamis = "13:25 - 15:10, 15:30 - 17:15"
+Jumat = "08:50 - 10:35"
 USE_SCHEDULER = config.getboolean('jadwal', 'scheduler')
 LOOP_INTERVAL = config.getint('jadwal', 'looping_interval')
 
