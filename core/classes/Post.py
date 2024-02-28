@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from bs4 import BeautifulSoup
@@ -5,9 +6,10 @@ from telethon import Button
 
 from core.bot import bot
 from core.browser import browser
+from core.classes.Comment import Comment
 from core.classes.File import FileFromPost
-from komen.komen import count_hadir, cek_komen
-from util.config import CHAT_ID
+from komen.komen import count_hadir, cek_komen, send_komen
+from util.config import CHAT_ID, CHECK_COMMENT_EVERY_POST, AUTO_HADIR, MINIMAL_COMMENT
 from util.web_utils import cek_jenis
 from utils import ss_element, post_id_to_html_id, generate_caption
 
@@ -15,6 +17,9 @@ from utils import ss_element, post_id_to_html_id, generate_caption
 class Post:
     def __init__(self, post_id):
 
+        self.total_hadir = 0
+        self.comment = None
+        self.sudah_komen = False
         self.bentuk_pembelajaran = None
         self.materi_perkuliahan = None
         self.indikator_kemampuan = None
@@ -36,13 +41,16 @@ class Post:
         self.status = None
         self.parse()
         self.ss_element()
-        self.is_saved = self.check_is_saved()
-        if self.is_other_commented:
-            self.perlu_absen = True if count_hadir(self.id) > 0 else False
-            self.sudah_absen = cek_komen(self.id)["found"] if self.perlu_absen else False
-        else:
-            self.sudah_absen = None
-            self.perlu_absen = None
+        self.komen_parse()
+
+    def komen_parse(self):
+        if self.is_other_commented and CHECK_COMMENT_EVERY_POST:
+            self.comment = Comment(self.id)
+            self.total_hadir = self.comment.total_hadir
+            self.sudah_komen = self.comment.sudah_komen
+            if not self.sudah_komen and self.comment.total_hadir > MINIMAL_COMMENT and AUTO_HADIR:
+                send_komen(self.id, "Hadir")
+                self.sudah_komen = True
 
     def download(self):
         if self.file.total_file != 0:
@@ -101,8 +109,8 @@ class Post:
             "jenis": self.jenis,
             "jenis_iter": self.jenis_iter,
             "jurusan": self.jurusan,
-            "perlu_absen": self.perlu_absen,
-            "sudah_absen": self.sudah_absen,
+            "total_hadir": self.total_hadir,
+            "sudah_absen": self.sudah_komen,
             "mata_kuliah": self.matkul,
             "dosen": self.dosen,
             "deskripsi": self.deskripsi,
@@ -138,15 +146,10 @@ class Post:
             ]
         return buttons
 
-    def check_is_saved(self):
+    def save_data(self):
         with open("data.json", "r+") as file:
             data = json.load(file)
-            return self.id in data
-
-    def save_data(self):
-        if not self.is_saved:
-            with open("data.json", "r+") as file:
-                data = json.load(file)
+            if self.id not in data:
                 data[self.id] = self.to_json()
                 file.seek(0)  # Move the file pointer to the beginning
                 json.dump(data, file, indent=4, sort_keys=True)
@@ -155,7 +158,6 @@ class Post:
     async def send(self, full=False):
         capt = generate_caption(self.to_json(), full)
         buttons = self.generate_button()
-
         await bot.send_file(
             entity=CHAT_ID,
             caption=capt,

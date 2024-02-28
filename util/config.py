@@ -23,7 +23,11 @@ JUMAT = config.get('Jadwal', 'Jumat')
 
 USE_SCHEDULER = config.get('Jadwal', 'scheduler')
 LOOPING_INTERVAL = config.get('Jadwal', 'looping_interval')
-LOOPING_SCHEDULER_INTERVAL = config.get('Jadwal', 'looping_scheduler_interval')
+LOOPING_SCHEDULER_INTERVAL = config.getint('Jadwal', 'looping_scheduler_interval')
 
 TIMEZONE = pytz.timezone('Asia/Jakarta')
 DOWNLOAD_PATH = config.get('Driver', 'download_path')
+
+CHECK_COMMENT_EVERY_POST = config.getboolean('Other', 'cek_comment_every_post')
+AUTO_HADIR = config.getboolean('Other', 'auto_hadir')
+MINIMAL_COMMENT = config.getint('Other', 'minimal_comment')

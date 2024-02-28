@@ -41,9 +41,7 @@ def gen():
     return random.randint(1, 5)
 
 
-@bot.on(events.CallbackQuery(pattern=r"cek"))
-async def handle(event: CallbackQuery.Event):
-    await send_loop_msg()
+
 
 
 async def send_loop_msg():

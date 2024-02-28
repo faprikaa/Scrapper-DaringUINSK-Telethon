@@ -1,88 +1,84 @@
 import asyncio
-import random
 from datetime import datetime
 
-from telethon import events, Button
-from telethon.events import CallbackQuery
+from telethon import Button
 
 from core.bot import bot
-from util.config import SENIN, SELASA, RABU, KAMIS, JUMAT, TIMEZONE, CHAT_ID
+from core.browser import browser
+from core.web import cek_jenis_all
+from util.config import SENIN, SELASA, RABU, KAMIS, JUMAT, TIMEZONE, CHAT_ID, LOOPING_SCHEDULER_INTERVAL
 
 should_run = True
 loop_msg = None  # Initialize loop_msg as a global variable
 total_cek = 0
 
 
-async def scheduler_check():
-    await jadwal_check(datetime.now(TIMEZONE).strftime("%A"))
-
 async def minute_check(time_ranges):
     global total_cek
     current_time = datetime.now().time()
     for time_range in time_ranges:
-        start_str, end_str = time_range.split(" - ")
-        start_time = datetime.strptime(start_str, "%H:%M")
-        end_time = datetime.strptime(end_str, "%H:%M")
-        is_time_to_loop = start_time.time() <= current_time < end_time.time()
-        if is_time_to_loop:
-            await bot.send_message(CHAT_ID, "It's time to loop")
-            await send_loop_msg()
+        start_time, end_time = map(lambda x: datetime.strptime(x, "%H:%M").time(), time_range.split(" - "))
+        if start_time.time() <= current_time < end_time.time():
+            msg_start = await bot.send_message(CHAT_ID,
+                                               f"Memasuki Mode Auto Cek\nMulai : {start_time}\nSelesai : {end_time}")
             total_cek = 0
             while datetime.now().time() < end_time.time() and should_run:
                 total_cek += 1
                 await send_loop_msg()
-                await asyncio.sleep(5)
+                await asyncio.sleep(LOOPING_SCHEDULER_INTERVAL)
+            await bot.delete_messages(CHAT_ID, msg_start)
+            msg_end = await bot.send_message(CHAT_ID,
+                                             f"Mengakhiri Mode Auto Cek\nTotal Cek : {total_cek}\nSelesai : {end_time}")
+            await bot.delete_messages(CHAT_ID, loop_msg)
+            await asyncio.sleep(600)  # Wait for 10 minutes
+            await bot.delete_messages(CHAT_ID, msg_end)
 
-def gen():
-    return random.randint(1, 5)
 
 async def send_loop_msg():
     global loop_msg  # Declare loop_msg as global before using it
+    browser.refresh()
+    cek_result = await cek_jenis_all(force=False)
+    last_check = datetime.now().time()
+    total_new_ids = len(cek_result)
+    if total_new_ids > 0:
+        result = f"{total_new_ids} New Post"
+    else:
+        result = "Tidak ada post baru"
+    msg = f"Sedang melakukan auto scrape\nLast Check = {last_check}\nResult = {result}\nTotal Cek = {total_cek}"
 
     if loop_msg:
         await bot.edit_message(
             entity=CHAT_ID,
             message=loop_msg.id,
-            text=gen_loop_msg(),
+            text=msg,
             buttons=[
                 Button.inline('recheck', "cek")
             ]
         )
     else:
-        loop_msg = await bot.send_message(CHAT_ID, gen_loop_msg(), buttons=[
+        loop_msg = await bot.send_message(CHAT_ID, msg, buttons=[
             Button.inline('recheck', "cek")
         ])
 
 
-def gen_loop_msg():
-    last_check = datetime.now().time()
-    result = gen()
-    return f"""
-Sedang melakukan auto scrape
-Last Check = {last_check}
-Result = {result}
-Total Cek = {total_cek}
-                    """
-
-async def jadwal_check(hari):
-    if hari == "Monday":
-        today = SENIN
-    elif hari == "Tuesday":
-        today = SELASA
-    elif hari == "Wednesday":
-        today = RABU
-    elif hari == "Saturday":
-        today = RABU
-    elif hari == "Sunday":
-        today = RABU
-    elif hari == "Thursday":
-        today = KAMIS
-    elif hari == "Friday":
-        today = JUMAT
+async def jadwal_check():
+    current_day = datetime.now(TIMEZONE).strftime("%A")
+    if current_day == "Monday":
+        hari_arr = hari_parser(SENIN)
+    elif current_day == "Tuesday":
+        hari_arr = hari_parser(SELASA)
+    elif current_day == "Wednesday":
+        hari_arr = hari_parser(RABU)
+    elif current_day == "Saturday":
+        hari_arr = hari_parser(RABU)
+    elif current_day == "Sunday":
+        hari_arr = hari_parser(RABU)
+    elif current_day == "Friday":
+        hari_arr = hari_parser(JUMAT)
     else:
-        return [" - ", "tidak ada jadwal"]
-    hari_arr = hari_parser(today)
+        return
     await minute_check(hari_arr)
+
 
 def hari_parser(hari):
     try:

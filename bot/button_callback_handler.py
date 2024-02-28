@@ -4,6 +4,7 @@ from telethon.events.callbackquery import CallbackQuery
 from core.bot import bot
 from core.classes.File import FileFromPost
 from core.classes.Post import Post
+from function.scheduler import send_loop_msg
 from util.config import CHAT_ID
 from utils import generate_caption
 
@@ -49,3 +50,8 @@ async def handle(event: CallbackQuery.Event):
 @bot.on(events.CallbackQuery(pattern="hapus"))
 async def handle(event: CallbackQuery.Event):
     await bot.delete_messages(entity=CHAT_ID, message_ids=event.message_id)
+
+
+@bot.on(events.CallbackQuery(pattern=r"cek"))
+async def handle(event: CallbackQuery.Event):
+    await send_loop_msg()

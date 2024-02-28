@@ -26,9 +26,13 @@ def generate_caption(data, full):
         caption += f"`{data.post_id}` | " + data.jenis + " | " + (data.jenis_iter if data.jenis_iter else "") + "\n"
         caption += data.dosen + "\n\n"
         caption += "**Deskripsi : **\n" + data.deskripsi + "\n\n"
-        caption += "**Perlu Absen : **" + str(data.perlu_absen) + "\n"
-        if data.perlu_absen:
-            caption += "**Sudah Absen : **" + str(data.sudah_absen) + "\n"
+        if data.total_hadir > 1:
+            if data.sudah_absen:
+                caption += "**Komen Absen : ** Sudah\n"
+            else:
+             caption += "**Komen Absen : ** Belum\n"
+        else:
+            caption += "**Komen Absen : ** Tidak Perlu\n"
         caption += "**Mulai : **" + str(data.waktu_mulai) + "\n"
         caption += "**Selesai : **" + str(data.waktu_selesai) + "\n"
         caption += "**Diposting : **" + data.waktu_post + "\n"
@@ -48,6 +52,10 @@ def generate_caption(data, full):
         caption += "**Deskripsi : **\n" + data.deskripsi + "\n\n"
     if data.total_file:
         caption += "**Total File : **\n" + str(data.total_file) + "\n\n"
+    if data.total_hadir:
+        caption += "**Total Hadir : **" + str(data.total_hadir) + "\n"
+    if data.sudah_absen and data.total_hadir > 1:
+        caption += "**Sudah Absen : **" + str(data.sudah_absen) + "\n"
     if data.waktu_mulai:
         caption += "**Waktu Mulai : **\n" + data.waktu_mulai + "\n\n"
     if data.waktu_selesai:
