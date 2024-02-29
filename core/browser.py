@@ -21,10 +21,10 @@ def init_browser():
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
-        ser = Service("/usr/bin/chromedriver")
+        driver = webdriver.Chrome(options=options)
     else:
         ser = Service("driver/chromedriver.exe")
-    driver = webdriver.Chrome(service=ser, options=options)
+        driver = webdriver.Chrome(service=ser, options=options)
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
     return driver
