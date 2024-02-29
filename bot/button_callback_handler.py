@@ -45,7 +45,7 @@ async def handle(event: CallbackQuery.Event):
 async def handle(event: CallbackQuery.Event):
     post_id = event.data.decode().removeprefix("mini_capt_")
     post = Post(post_id)
-    capt = generate_caption(post.to_json())
+    capt = generate_caption(post.to_json(), full=False)
     buttons = post.generate_button()
     await bot.edit_message(
         entity=CHAT_ID,

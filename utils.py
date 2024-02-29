@@ -18,7 +18,7 @@ def ss_element(html_id):
     return img_name
 
 
-def generate_caption(data, full):
+def generate_caption(data, full=False):
     caption = ""
     data = DotMap(data)
     if not full:

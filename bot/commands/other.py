@@ -1,3 +1,4 @@
+import psutil
 from telethon import events
 
 from core.bot import bot
@@ -12,6 +13,12 @@ async def handler(event):
     komen_value = " ".join(split[1:])
     await send_komen(post_id, komen_value)
 
+@bot.on(events.NewMessage(pattern='(?i)/*usage'))
+async def handler(event):
+    ram = psutil.virtual_memory()[2]
+    cpu = psutil.cpu_percent(4)
+
+    await bot.send_message(f"Total RAM yang terpakai sebesar : `{ram}%`\n Total CPU yang terpakai sebesar : `{cpu}%`")
 # @bot.on(events.NewMessage(pattern='/list'))
 # async def handler(event):
 #     datas = load_saved_data()
