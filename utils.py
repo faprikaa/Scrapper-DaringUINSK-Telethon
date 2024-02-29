@@ -27,10 +27,10 @@ def generate_caption(data, full):
         caption += data.dosen + "\n\n"
         caption += "**Deskripsi : **\n" + data.deskripsi + "\n\n"
         if data.total_hadir > 1:
-            if data.sudah_absen:
+            if data.sudah_komen:
                 caption += "**Komen Absen : ** Sudah\n"
             else:
-             caption += "**Komen Absen : ** Belum\n"
+                caption += "**Komen Absen : ** Belum\n"
         else:
             caption += "**Komen Absen : ** Tidak Perlu\n"
         caption += "**Mulai : **" + str(data.waktu_mulai) + "\n"
@@ -55,7 +55,7 @@ def generate_caption(data, full):
     if data.total_hadir:
         caption += "**Total Hadir : **" + str(data.total_hadir) + "\n"
     if data.sudah_absen and data.total_hadir > 1:
-        caption += "**Sudah Absen : **" + str(data.sudah_absen) + "\n"
+        caption += "**Sudah Absen : **" + str(data.sudah_komen) + "\n"
     if data.waktu_mulai:
         caption += "**Waktu Mulai : **\n" + data.waktu_mulai + "\n\n"
     if data.waktu_selesai:

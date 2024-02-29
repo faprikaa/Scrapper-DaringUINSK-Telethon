@@ -1,20 +1,30 @@
+import asyncio
+
 from telethon import events
 from telethon.events.callbackquery import CallbackQuery
 
 from core.bot import bot
-from core.classes.File import FileFromPost
+from core.classes.File import File
 from core.classes.Post import Post
 from function.scheduler import send_loop_msg
 from util.config import CHAT_ID
+from util.json_util import get_saved_data_by_post_id
 from utils import generate_caption
+from util.file_utils import send_files
 
 
 @bot.on(events.CallbackQuery(pattern=r"^download_file_\d+$"))
 async def handle(event: CallbackQuery.Event):
     post_id = event.data.decode().removeprefix("download_file_")
-    file = FileFromPost(post_id)
-    if file.total_file != 0:
-        await file.send_files(reply_msg_id=event.message_id)
+    post_data = get_saved_data_by_post_id(post_id)
+    if not post_data:
+        msg = await event.reply("Data postingan tidak ditemukan di penyimpanan")
+        await asyncio.sleep(300)
+        await bot.delete_messages(CHAT_ID, msg)
+        return
+    if post_data["total_file"] > 0:
+        file_elements = post_data["file_elements"]
+        await send_files(file_elements)
 
 
 @bot.on(events.CallbackQuery(pattern=r"^full_capt_\d+$"))

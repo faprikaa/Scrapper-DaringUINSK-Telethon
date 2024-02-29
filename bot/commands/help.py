@@ -1,3 +1,10 @@
+from telethon import events, functions
+from datetime import datetime
+
+from core.bot import bot
+
+start_time = datetime.now().time()
+
 def dynamic_func():
     print("Hello there!")
 
@@ -18,3 +25,10 @@ def dynamic_func():
 #     for msg in list_msg:
 #         await bot.delete_messages(CHAT_ID, msg.id)
 #     await bot.delete_messages(CHAT_ID, msg1)
+
+# @bot.on(events.NewMessage(pattern='/ping'))
+# async def handler(event):
+#     msg = f"""
+# Bot hidup sejak **{start_time}**
+# Ping {bot(functions.PingRequest())}
+#     """

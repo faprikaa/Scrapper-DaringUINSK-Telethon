@@ -14,18 +14,19 @@ total_cek = 0
 
 
 async def minute_check(time_ranges):
-    global total_cek
+    global total_cek, should_run
     current_time = datetime.now().time()
     for time_range in time_ranges:
         start_time, end_time = map(lambda x: datetime.strptime(x, "%H:%M").time(), time_range.split(" - "))
-        if start_time.time() <= current_time < end_time.time():
+        if start_time <= current_time < end_time:
             msg_start = await bot.send_message(CHAT_ID,
                                                f"Memasuki Mode Auto Cek\nMulai : {start_time}\nSelesai : {end_time}")
             total_cek = 0
-            while datetime.now().time() < end_time.time() and should_run:
+            while datetime.now().time() < end_time and should_run:
                 total_cek += 1
                 await send_loop_msg()
                 await asyncio.sleep(LOOPING_SCHEDULER_INTERVAL)
+            should_run = False
             await bot.delete_messages(CHAT_ID, msg_start)
             msg_end = await bot.send_message(CHAT_ID,
                                              f"Mengakhiri Mode Auto Cek\nTotal Cek : {total_cek}\nSelesai : {end_time}")
@@ -86,3 +87,11 @@ def hari_parser(hari):
         return hari_arr
     except:
         print(Exception)
+
+
+async def set_should_run(value: bool = False):
+    global should_run
+    should_run = value
+    msg = await bot.send_message(CHAT_ID, "Berhasil stop Scheduler !\nAkan berhenti pada iterasi berikutnya")
+    await asyncio.sleep(600)
+    await bot.delete_messages(CHAT_ID, msg)

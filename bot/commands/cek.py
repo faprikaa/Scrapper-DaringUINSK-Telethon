@@ -3,6 +3,7 @@ from telethon import events
 from core.bot import bot
 from core.web import alert_checker, cek_jenis_all, click_next, get_html_ids
 from util.config import CHAT_ID
+from function.scheduler import set_should_run
 
 
 @bot.on(events.NewMessage(pattern='/fcek(?:\s|$)(.*)'))
@@ -64,3 +65,8 @@ async def handler(event):
 @bot.on(events.NewMessage(pattern='/next'))
 async def handler(event):
     await bot.send_message(CHAT_ID, await click_next())
+
+
+@bot.on(events.NewMessage(pattern='/stop'))
+async def handler(event):
+    await set_should_run(False)

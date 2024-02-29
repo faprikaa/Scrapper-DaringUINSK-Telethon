@@ -22,7 +22,7 @@ KAMIS = config.get('Jadwal', 'Kamis')
 JUMAT = config.get('Jadwal', 'Jumat')
 
 USE_SCHEDULER = config.get('Jadwal', 'scheduler')
-LOOPING_INTERVAL = config.get('Jadwal', 'looping_interval')
+LOOPING_INTERVAL = config.getint('Jadwal', 'looping_interval')
 LOOPING_SCHEDULER_INTERVAL = config.getint('Jadwal', 'looping_scheduler_interval')
 
 TIMEZONE = pytz.timezone('Asia/Jakarta')

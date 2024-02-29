@@ -10,7 +10,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from core.bot import bot
 from core.browser import browser
 from core.classes.Post import Post
-from util.config import CHAT_ID, USERNAME, PASSWORD
+from util.config import CHAT_ID, USERNAME, PASSWORD, AUTO_HADIR
 from util.cookies import load_cookies_from_file, insert_cookies_to_browser, insert_cookies_to_file
 from util.json_util import load_saved_data, save_data
 from util.web_utils import get_nama_mhs
@@ -133,6 +133,8 @@ async def cek_jenis_all(all_id=None, force=True):
             await post.send()
             if not force:
                 saved_data[post_id] = post.to_json()
+            if AUTO_HADIR:
+                await post.check_hadir()
         except Exception as e:
             await bot.send_message(CHAT_ID, f"An error occurred: {traceback.format_exc()}")
             # Optionally, log the error or handle it appropriately
