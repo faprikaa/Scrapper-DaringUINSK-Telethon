@@ -2,8 +2,8 @@ from telethon import events
 
 from core.bot import bot
 from core.web import alert_checker, cek_jenis_all, click_next, get_html_ids
-from util.config import CHAT_ID
 from function.scheduler import set_should_run
+from util.config import CHAT_ID
 
 
 @bot.on(events.NewMessage(pattern='/fcek(?:\s|$)(.*)'))

@@ -1,9 +1,6 @@
-import asyncio
-
+from bot import *
 from core.bot import bot as Bot
 from core.web import login
-from bot import *
-from komen.komen import cek_komen
 from util.config import USE_SCHEDULER, LOOPING_INTERVAL
 
 

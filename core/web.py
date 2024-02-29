@@ -1,4 +1,3 @@
-import json
 import traceback
 
 from selenium.common import UnexpectedAlertPresentException, NoSuchElementException, TimeoutException, \

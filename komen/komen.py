@@ -3,10 +3,10 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
+from core.bot import bot
 from util.config import CHAT_ID
 from util.cookies import get_php_cookie
 from util.web_utils import get_nama_mhs
-from core.bot import bot
 
 
 def cek_komen(post_id):
@@ -27,12 +27,12 @@ def cek_komen(post_id):
     parsed = BeautifulSoup(response.text, "html.parser")
     search = parsed.find("div", string=nama.strip())
     if search:
-        if "id" in search.h5.attrs: # pakai ini jika komennya di dalam komenan mahasiswa lain
+        if "id" in search.h5.attrs:  # pakai ini jika komennya di dalam komenan mahasiswa lain
             id_komen = search.h5.attrs["id"]
             id_komen_clean = str(id_komen).removeprefix("id-usr-reply-cmt-")
             value_element = search.find_next_sibling("div")
             value_comment = value_element.p.get_text()
-        else: #pakai ini kalau komen biasa
+        else:  # pakai ini kalau komen biasa
             value_element = search.find_next_sibling("div")
             id_komen = value_element.attrs["id"]
             id_komen_clean = str(id_komen).removeprefix("comment")
@@ -80,12 +80,19 @@ async def send_komen(post_id, value):
 
     payload = f"jenistampilan=0&content={value}&id_post={post_id}&kd_group=1"
 
-    cks = get_php_cookie()
-    cookies = {'PHPSESSID': cks}
+    # cks = get_php_cookie()
+    cookies = {'PHPSESSID': "ASDASDASD"}
+    print(cookies)
     response = requests.post(url, headers=headers,
                              data=payload, cookies=cookies)
-    if response.status_code == 200:
-        await bot.send_message(CHAT_ID, f"Berhasil kirim komentar `{value}` di postingan *{post_id}*")
+    print(response.text)
+    print(response.ok)
+    print(response.next)
+    print(response.content)
+    print(response.status_code)
+    print(response.raw)
+    if response.status_code == 200 and response.text != "err_k" and response != "":
+        await bot.send_message(CHAT_ID, f"Berhasil kirim komentar `{value}` di postingan **{post_id}**")
     else:
         await bot.send_message(CHAT_ID, "Gagal kirim komentar !")
 

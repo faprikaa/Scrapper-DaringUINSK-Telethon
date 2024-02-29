@@ -1,4 +1,3 @@
-import asyncio
 import json
 
 from bs4 import BeautifulSoup
@@ -8,10 +7,9 @@ from telethon import Button
 from core.bot import bot
 from core.browser import browser
 from core.classes.Comment import Comment
-from core.classes.File import File
-from komen.komen import count_hadir, cek_komen, send_komen
-from util.config import CHAT_ID, CHECK_COMMENT_EVERY_POST, AUTO_HADIR, MINIMAL_COMMENT, DOWNLOAD_PATH
-from util.json_util import load_saved_data, get_saved_data_by_post_id
+from komen.komen import send_komen
+from util.config import CHAT_ID, CHECK_COMMENT_EVERY_POST, MINIMAL_COMMENT, DOWNLOAD_PATH
+from util.json_util import get_saved_data_by_post_id
 from util.web_utils import cek_jenis
 from utils import ss_element, post_id_to_html_id, generate_caption
 
@@ -141,7 +139,6 @@ class Post:
             case default:
                 ""
 
-
     def ss_element(self):
         self.pic_name = ss_element(post_id_to_html_id(self.id))
 
@@ -220,6 +217,3 @@ class Post:
             self.file_elements.append(file_element)
         else:
             return
-
-
-

@@ -1,12 +1,10 @@
-import traceback
-
 from bs4 import BeautifulSoup
-from selenium.common import UnexpectedAlertPresentException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from core.browser import browser
+
 
 def cek_jenis(html_id):
     # print(full_id)
@@ -49,6 +47,3 @@ def get_nama_mhs():
     nama = browser.find_element(
         By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
     return nama.text.strip()
-
-
-

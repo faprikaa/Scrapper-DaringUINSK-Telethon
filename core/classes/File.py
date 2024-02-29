@@ -7,6 +7,7 @@ from core.bot import bot
 # from core.browser import browser
 from util.config import DOWNLOAD_PATH, CHAT_ID
 
+
 #
 # class FileFromPost:
 #     def __init__(self, post_id):
@@ -74,7 +75,7 @@ class File:
 
     async def send_file(self, overwrite=False, progress_msg=None):
         # if overwrite or not self.is_downloaded:
-            # self.clickable.click()
+        # self.clickable.click()
 
         async def callback(current, total):
             await bot.edit_message(progress_msg, message=f"Uploading {format(current / total, '.2%')}")

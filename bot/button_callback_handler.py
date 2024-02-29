@@ -4,13 +4,12 @@ from telethon import events
 from telethon.events.callbackquery import CallbackQuery
 
 from core.bot import bot
-from core.classes.File import File
 from core.classes.Post import Post
 from function.scheduler import send_loop_msg
 from util.config import CHAT_ID
+from util.file_utils import send_files
 from util.json_util import get_saved_data_by_post_id
 from utils import generate_caption
-from util.file_utils import send_files
 
 
 @bot.on(events.CallbackQuery(pattern=r"^download_file_\d+$"))

@@ -6,7 +6,7 @@ from telethon import Button
 from core.bot import bot
 from core.browser import browser
 from core.web import cek_jenis_all
-from util.config import SENIN, SELASA, RABU, KAMIS, JUMAT, TIMEZONE, CHAT_ID, LOOPING_SCHEDULER_INTERVAL
+from util.config import SENIN, SELASA, RABU, JUMAT, TIMEZONE, CHAT_ID, LOOPING_SCHEDULER_INTERVAL
 
 should_run = True
 loop_msg = None  # Initialize loop_msg as a global variable

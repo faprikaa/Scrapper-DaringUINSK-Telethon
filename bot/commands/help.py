@@ -1,9 +1,7 @@
-from telethon import events, functions
 from datetime import datetime
 
-from core.bot import bot
-
 start_time = datetime.now().time()
+
 
 def dynamic_func():
     print("Hello there!")
