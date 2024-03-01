@@ -1,11 +1,15 @@
 import os
 import time
+import requests
 
 from bs4 import BeautifulSoup
 
 from core.bot import bot
+from core.web import login
+from test import file_name
 # from core.browser import browser
 from util.config import DOWNLOAD_PATH, CHAT_ID
+from util.cookies import get_php_cookie
 
 
 #
@@ -55,6 +59,7 @@ class File:
         self.parsed = BeautifulSoup(self.element, 'html.parser').find('a')
         self.name = self.get_file_name_from_element()
         self.link = self.parsed.get("href")
+        self.file_name = self.parsed.text
         # self.clickable = self.element.find_element(By.XPATH, f"//a[@href='{self.link}']")
         self.path = os.path.join(self.download_path, self.name)
         self.is_downloaded = os.path.isfile(self.path)
@@ -73,13 +78,24 @@ class File:
     def check_is_file_downloaded(self):
         return os.path.isfile(self.path)
 
-    async def send_file(self, overwrite=False, progress_msg=None):
-        # if overwrite or not self.is_downloaded:
-        # self.clickable.click()
+    async def download(self):
+        php_cks = get_php_cookie()
+        cookies = {"PHPSESSID" : php_cks["value"]}
+        response = requests.get(self.link, cookies=cookies)
+        if str(response.text) == "":
+            msg = await bot.send_message(CHAT_ID, "Cookies habis sedang login ulang")
+            await login()
+            await bot.delete_messages(CHAT_ID, msg)
+            cookies = get_php_cookie()["value"]
+            response = requests.get(self.link, cookies=cookies)
+        with open(self.path, "wb") as file:
+            file.write(response.content)
 
+    async def send_file(self, overwrite=False, progress_msg=None):
         async def callback(current, total):
             await bot.edit_message(progress_msg, message=f"Uploading {format(current / total, '.2%')}")
-
-        while not self.check_is_file_downloaded():
-            time.sleep(1)
+        if not self.check_is_file_downloaded() or overwrite:
+            await self.download()
+            while not self.check_is_file_downloaded():
+                time.sleep(1)
         await bot.send_file(CHAT_ID, self.path, progress_callback=callback)

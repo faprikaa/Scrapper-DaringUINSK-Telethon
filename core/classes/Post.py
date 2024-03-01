@@ -34,10 +34,10 @@ class Post:
         self.total_file = None
 
         # komen
+        self.is_other_commented = None
         self.total_hadir = 0
         self.comment = None
         self.sudah_komen = False
-        self.is_other_commented = None
 
         # data
         self.bentuk_pembelajaran = None
@@ -57,7 +57,7 @@ class Post:
         self.parse()
         self.ss_element()
         self.komen_parse()
-        self.get_file_element()
+        # self.get_file_element()
 
     def komen_parse(self):
         if self.is_other_commented and CHECK_COMMENT_EVERY_POST:
@@ -92,6 +92,8 @@ class Post:
             return
         soup = BeautifulSoup(browser.page_source, 'html.parser')
         self.main = soup.find("div", {"id": self.html_id})
+        file_elements = self.main.find_all("a", {"class": "downloadfile downloadfileset"})
+        self.file_elements.extend([str(element) for element in file_elements])
         array_text = self.main.get_text(" | ", strip=True).split(" | ")
         self.jenis = cek_jenis(self.html_id)
         self.total_file = len(browser.find_elements(By.XPATH, f'//*[@id="{self.html_id}"]/div[3]/p'))
@@ -146,7 +148,7 @@ class Post:
         data = {
             "post_id": self.id,
             "pic_name": self.pic_name,
-            "file_elemements": self.file_elements,
+            "file_elements": self.file_elements,
             "jenis": self.jenis,
             "jenis_iter": self.jenis_iter,
             "jurusan": self.jurusan,
@@ -206,14 +208,3 @@ class Post:
             file=self.pic_name,
             buttons=buttons
         )
-
-    def get_file_element(self):
-        if self.total_file > 1:
-            for i in range(1, self.total_file + 1):
-                file_element = browser.find_element(By.XPATH, f'//*[@id="{self.html_id}"]/div[3]/p[{i}]/span/a')
-                self.file_elements.append(file_element)
-        elif self.total_file == 1:
-            file_element = browser.find_element(By.XPATH, f'//*[@id="{self.html_id}"]/div[3]/p/span/a')
-            self.file_elements.append(file_element)
-        else:
-            return
