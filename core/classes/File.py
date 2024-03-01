@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 
 from core.bot import bot
 from core.web import login
-from test import file_name
 # from core.browser import browser
 from util.config import DOWNLOAD_PATH, CHAT_ID
 from util.cookies import get_php_cookie
