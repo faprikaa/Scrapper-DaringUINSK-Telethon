@@ -5,9 +5,9 @@ from util.config import CHAT_ID
 
 async def send_files(file_elements, overwrite=False, reply_msg_id=None):
     msg = None
-    try:
-        i = 1
-        for file_element in file_elements:
+    i = 1
+    for file_element in file_elements:
+        try:
             if reply_msg_id is None:
                 msg = await bot.send_message(CHAT_ID, f"Downloading file ke-{i}...")
             else:
@@ -15,5 +15,5 @@ async def send_files(file_elements, overwrite=False, reply_msg_id=None):
             file = File(file_element)
             await file.send_file(overwrite=overwrite, progress_msg=msg)
             i += 1
-    finally:
-        await bot.delete_messages(CHAT_ID, [msg])
+        finally:
+            await bot.delete_messages(CHAT_ID, [msg])

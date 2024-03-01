@@ -93,6 +93,7 @@ class File:
     async def send_file(self, overwrite=False, progress_msg=None):
         async def callback(current, total):
             await bot.edit_message(progress_msg, message=f"Uploading {format(current / total, '.2%')}")
+
         if not self.check_is_file_downloaded() or overwrite:
             await self.download()
             while not self.check_is_file_downloaded():
