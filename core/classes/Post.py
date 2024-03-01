@@ -73,7 +73,7 @@ class Post:
     def parse(self):
         if self.from_json:
             datas = get_saved_data_by_post_id(self.id)
-            self.file_elements = datas["file_elemements"]
+            self.file_elements = datas["file_elements"]
             self.pic_name = datas["pic_name"]
             self.jenis = datas["jenis"]
             self.jenis_iter = datas["jenis_iter"]
