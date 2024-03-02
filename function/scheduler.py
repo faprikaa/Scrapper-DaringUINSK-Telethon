@@ -2,10 +2,11 @@ import asyncio
 from datetime import datetime
 
 from telethon import Button
+from selenium.common.exceptions import UnexpectedAlertPresentException
 
 from core.bot import bot
 from core.browser import browser
-from core.web import cek_jenis_all
+from core.web import cek_jenis_all, alert_checker
 from util.config import SENIN, SELASA, RABU, JUMAT, TIMEZONE, CHAT_ID, LOOPING_SCHEDULER_INTERVAL
 
 should_run = True
@@ -37,6 +38,7 @@ async def minute_check(time_ranges):
 
 async def send_loop_msg():
     global loop_msg  # Declare loop_msg as global before using it
+    alert_checker()
     browser.refresh()
     cek_result = await cek_jenis_all(force=False)
     last_check = datetime.now(TIMEZONE).time()

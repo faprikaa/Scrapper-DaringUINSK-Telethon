@@ -100,6 +100,7 @@ async def get_html_ids():
 
 
 async def cek_jenis_all(all_id=None, force=True):
+    alert_checker()
     try:
         browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/div/div/nav/ol/li[1]/div/center/h2/b")
     except NoSuchElementException:
@@ -164,5 +165,5 @@ def alert_checker():
         browser.switch_to.alert
     except:
         pass
-    else:
+    finally:
         login()
