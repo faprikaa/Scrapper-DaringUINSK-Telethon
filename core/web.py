@@ -165,5 +165,5 @@ def alert_checker():
         browser.switch_to.alert
     except:
         pass
-    finally:
+    else:
         login()
