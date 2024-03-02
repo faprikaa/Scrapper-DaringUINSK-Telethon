@@ -15,14 +15,14 @@ total_cek = 0
 
 async def minute_check(time_ranges):
     global total_cek, should_run
-    current_time = datetime.now().time()
+    current_time = datetime.now(TIMEZONE).time()
     for time_range in time_ranges:
         start_time, end_time = map(lambda x: datetime.strptime(x, "%H:%M").time(), time_range.split(" - "))
         if start_time <= current_time < end_time:
             msg_start = await bot.send_message(CHAT_ID,
                                                f"Memasuki Mode Auto Cek\nMulai : {start_time}\nSelesai : {end_time}")
             total_cek = 0
-            while datetime.now().time() < end_time and should_run:
+            while datetime.now(TIMEZONE).time() < end_time and should_run:
                 total_cek += 1
                 await send_loop_msg()
                 await asyncio.sleep(LOOPING_SCHEDULER_INTERVAL)
@@ -39,7 +39,7 @@ async def send_loop_msg():
     global loop_msg  # Declare loop_msg as global before using it
     browser.refresh()
     cek_result = await cek_jenis_all(force=False)
-    last_check = datetime.now().time()
+    last_check = datetime.now(TIMEZONE).time()
     total_new_ids = len(cek_result)
     if total_new_ids > 0:
         result = f"{total_new_ids} New Post"
