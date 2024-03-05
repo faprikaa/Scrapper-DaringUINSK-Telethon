@@ -162,8 +162,9 @@ async def click_next():
 
 def alert_checker():
     try:
-        browser.switch_to.alert
+        WebDriverWait(browser, 3).until(EC.alert_is_present())
     except:
         pass
     else:
+        browser.switch_to.alert.accept()
         login()

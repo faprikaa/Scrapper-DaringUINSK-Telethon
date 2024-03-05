@@ -1,5 +1,7 @@
 import calendar
 
+import pytz
+
 from data_handler import *
 
 config = ConfigParser()
@@ -47,7 +49,6 @@ async def menit_checker(t1, t2):
             stop = 0
 
         if t1 <= jam_ini < t2:
-            alert_checker()
             await time_checker(t1, t2)
             ids = await cek_id()
             browser.get("https://daring.uin-suka.ac.id")
