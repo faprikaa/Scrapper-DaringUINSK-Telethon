@@ -72,10 +72,10 @@ async def jadwal_check():
         hari_arr = hari_parser(SELASA)
     elif current_day == "Wednesday":
         hari_arr = hari_parser(RABU)
-    elif current_day == "Saturday":
-        hari_arr = hari_parser(RABU)
-    elif current_day == "Sunday":
-        hari_arr = hari_parser(RABU)
+    # elif current_day == "Saturday":
+    #     hari_arr = hari_parser(RABU)
+    # elif current_day == "Sunday":
+    #     hari_arr = hari_parser(RABU)
     elif current_day == "Friday":
         hari_arr = hari_parser(JUMAT)
     else:
